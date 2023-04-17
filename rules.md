@@ -7,7 +7,7 @@
 
 2. If $x \in [a, b]$ then
     - $x / k$ => ? (constant or zero?)
-    - $x % k$ => ? (x or x + some constant?)
+    - $x \% k$ => ? (x or x + some constant?)
 
 3. **Iterators**
     - Let I be an iterator (start, end, step)
