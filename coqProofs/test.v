@@ -1,5 +1,7 @@
 From Coq Require Import ZArith.
+Require Import Coq.Init.Logic.
 Local Open Scope Z_scope.
+Require Import Coq.Logic.Classical_Prop.
 
 (* Prove that addition is commutative *)
 Theorem commutative_addition : forall a b : Z, a + b = b + a.
@@ -24,17 +26,21 @@ Definition inIterator (x : Z) (I : Iterator) :=
     | iterator _start _end _step => 
         match _step with
         | Z0 => x = _start 
-        | Zpos _ => _start <= x /\ x <= _end /\ (_step | (x - _start))
-        | Zneg _ => _end <= x /\ x <= _start /\ (_step | (_start - x))
+        | Zpos _ => (_start <= x /\ x <= _end) /\ (_step | (x - _start))
+        | Zneg _ => (_end <= x /\ x <= _start) /\ (_step | (_start - x))
         end
     end.
 
 Check (inIterator 8 (iterator 1 10 1)).
-Theorem in_iterator : (inIterator 8 (iterator 1 10 1)).
+Theorem ex_in_iterator : (inIterator 8 (iterator 1 10 1)).
 Proof. simpl. split. 
-    - discriminate.
     - split.
         + discriminate.
-        + exists 7. reflexivity.
+        + discriminate.
+    - exists 7. reflexivity.
 Qed.
 
+Theorem ex_notin_iterator :  ~ (inIterator 8 (iterator 1 (-10) (-1))).
+Proof. simpl. unfold not. intro H. destruct H. 
+    - destruct H. destruct H1. reflexivity.
+Qed.
