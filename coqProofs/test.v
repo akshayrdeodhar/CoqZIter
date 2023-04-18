@@ -1,7 +1,11 @@
 From Coq Require Import ZArith.
 Require Import Coq.Init.Logic.
-Local Open Scope Z_scope.
 Require Import Coq.Logic.Classical_Prop.
+Require Import BinPos BinInt Decidable Zcompare.
+Require Import Arith_base.
+
+Local Open Scope Z_scope.
+
 
 (* Prove that addition is commutative *)
 Theorem commutative_addition : forall a b : Z, a + b = b + a.
@@ -44,3 +48,31 @@ Theorem ex_notin_iterator :  ~ (inIterator 8 (iterator 1 (-10) (-1))).
 Proof. simpl. unfold not. intro H. destruct H. 
     - destruct H. destruct H1. reflexivity.
 Qed.
+
+Definition iteratorMin (I : Iterator) : Z :=
+    match I with
+    | iterator _start _end _step => 
+        match _step with 
+        | Zneg _ => _end
+        | _ => _start
+        end
+    end.
+
+Definition myIterator : Iterator := iterator 1 10 1.
+Definition myNegIterator : Iterator := iterator 10 1 (-1).
+
+Compute iteratorMin myIterator.
+Compute iteratorMin myNegIterator.
+
+Lemma min_of_iter : forall x : Z, forall I : Iterator, (inIterator x I) -> (iteratorMin I) <= x.
+Proof.
+    intros. unfold inIterator in H. unfold iteratorMin. destruct I. destruct _step.
+    destruct H.
+    - induction x.
+        + discriminate.
+        + induction p. auto. auto. discriminate.
+        + induction p. auto. auto. discriminate.
+    - destruct H. destruct H. assumption.
+    - destruct H. destruct H. assumption.
+Qed.
+ 
