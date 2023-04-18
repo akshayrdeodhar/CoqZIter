@@ -12,7 +12,7 @@ Inductive MySet : Type :=
 
     (* TODO: Step must be positive *)
 Inductive Iterator : Type :=
-    | iterator (_start : Z) (_end : Z) (_step : Z).
+    | iterator (_start _end _step : Z).
 
 Definition inMySet (x : Z) (A : MySet) : Prop :=
     match A with
@@ -28,3 +28,13 @@ Definition inIterator (x : Z) (I : Iterator) :=
         | Zneg _ => _end <= x /\ x <= _start /\ (_step | (_start - x))
         end
     end.
+
+Check (inIterator 8 (iterator 1 10 1)).
+Theorem in_iterator : (inIterator 8 (iterator 1 10 1)).
+Proof. simpl. split. 
+    - discriminate.
+    - split.
+        + discriminate.
+        + exists 7. reflexivity.
+Qed.
+
