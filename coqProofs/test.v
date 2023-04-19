@@ -220,3 +220,20 @@ Proof.
         + assumption.
 Qed.
 
+(* Iterator Interval Equivalency *)
+
+Theorem iterator_interval_eq : forall x : Z, forall It : Interval, 
+    (inInterval x It) -> 
+    (inIterator x (iterator (intervalStart It) (intervalEnd It) 1)).
+Proof.
+    intros. destruct It. unfold inInterval in H.
+    unfold intervalStart. unfold intervalEnd.
+    unfold inIterator. split.
+    - assumption.
+    - exists (x - _start). ring.
+Qed.
+
+
+
+
+
