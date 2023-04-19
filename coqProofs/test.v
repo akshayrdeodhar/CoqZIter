@@ -256,13 +256,14 @@ Proof.
     - destruct H. assumption.
     - destruct H. assumption.
 Qed.
+
 (* Iterator Interval Equivalency *)
 
-Theorem iterator_interval_eq : forall x : Z, forall It : Interval, 
-    (inInterval x It) -> 
-    (inIterator x (iterator (intervalStart It) (intervalEnd It) 1)).
+Theorem iterator_interval_eq : forall x : Z, forall In : Interval, 
+    (inInterval x In) -> 
+    (inIterator x (iterator (intervalStart In) (intervalEnd In) 1)).
 Proof.
-    intros. destruct It. unfold inInterval in H.
+    intros. destruct In. unfold inInterval in H.
     unfold intervalStart. unfold intervalEnd.
     unfold inIterator. split.
     - assumption.
