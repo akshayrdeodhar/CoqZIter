@@ -220,3 +220,14 @@ Proof.
         + assumption.
 Qed.
 
+
+
+Theorem iterator_to_interval : forall x : Z, forall It : Iterator,
+    (inIterator x It) -> (inInterval x (interval (iteratorMin It) (iteratorMax It))).
+Proof.
+    intros x It. intros H. unfold inIterator in H.  unfold inInterval.
+    unfold iteratorMin. unfold iteratorMax. destruct It. destruct _step.
+    - split. all: rewrite <- H. all: apply always_leq.
+    - destruct H. assumption.
+    - destruct H. assumption.
+Qed.
