@@ -204,13 +204,11 @@ Qed.
 
 Theorem interval_add : forall a b : Z, forall A B : Interval, 
     (inInterval a A) /\ (inInterval b B) -> 
-    (inInterval 
-        (a + b) 
+    (inInterval (a + b) 
         (interval ((intervalStart A) + (intervalStart B))
                   ((intervalEnd A) + (intervalEnd B)))).
 Proof.
-    intros a b A B H. destruct H as [H0 H1]. 
-    unfold inInterval.
+    intros a b A B H. destruct H as [H0 H1]. unfold inInterval.
     destruct A as [aStart aEnd]. destruct B as [bStart bEnd]. 
     unfold intervalStart. unfold intervalEnd. 
     unfold inInterval in H0. unfold inInterval in H1.
@@ -224,6 +222,29 @@ Proof.
         + assumption.
 Qed.
 
+Theorem interval_sub: forall a b : Z, forall A B : Interval,
+    (inInterval a A) /\ (inInterval b B) -> 
+    (inInterval (a - b)
+        (interval ((intervalStart A) - (intervalEnd B))
+                  ((intervalEnd A) - (intervalStart B)))).
+Proof.
+    intros a b A B H. destruct H as [H0 H1]. unfold inInterval.
+    destruct A as [aStart aEnd]. destruct B as [bStart bEnd].
+    unfold intervalStart. unfold intervalEnd.
+    unfold inInterval in H0. unfold inInterval in H1.
+    destruct H1 as [H2 H3]. destruct H0 as [H0 H1].
+    split.
+    - apply Zplus_le_compat.
+        + assumption.
+        + apply Zle_minus_le_0 in H3. apply Zle_0_minus_le.
+            assert ((- b -- bEnd) = (bEnd - b)). ring.
+            destruct H. assumption.
+    - apply Zplus_le_compat.
+        + assumption. 
+        + apply Zle_minus_le_0 in H2. apply Zle_0_minus_le.
+            assert ((- bStart - - b) = (b - bStart)). ring.
+            destruct H. assumption.
+Qed.
 
 
 (* Iterator Interval Equivalency *)
