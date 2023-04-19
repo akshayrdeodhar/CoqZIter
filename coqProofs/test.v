@@ -1,7 +1,7 @@
 From Coq Require Import ZArith.
 Require Import Coq.Init.Logic.
 Require Import Coq.Logic.Classical_Prop.
-Require Import BinPos BinInt Decidable Zcompare.
+Require Import BinPos BinInt Decidable Zcompare Znumtheory.
 Require Import Arith_base.
 
 Local Open Scope Z_scope.
@@ -130,5 +130,20 @@ Lemma mod_of_iter : forall x  c : Z, forall I : Iterator,
 Proof.
     intros. destruct H. destruct I. unfold iteratorStep in H. 
     unfold iteratorStart. unfold inIterator in H0. destruct _step.
+
     - rewrite -> H0. reflexivity.
-    - destruct H0. unfold Z.divide in H1. unfold Z.divide in H.
+    - destruct H0. destruct H1. assert (c | x0 * Z.pos p). 
+        + apply Zdivide_mult_r. assumption.
+        + assert (c | x - _start). rewrite H1. assumption.
+            ++ destruct H3. assert (x = _start  + x1 * c). rewrite <- H3. ring.
+               rewrite -> H4. apply Z_mod_plus_full.
+    - destruct H0. destruct H1. assert (c | x0 * Z.neg p).
+        + apply Zdivide_mult_r. assumption.
+        + assert (c | _start - x). rewrite H1. assumption.
+            ++ destruct H3. assert (_start = x + x1 * c). rewrite <- H3. ring.
+               rewrite -> H4. symmetry. apply Z_mod_plus_full.
+Qed.
+    (* apply Zdivide_mod in H. apply Zdivide_mod in H1. *)
+
+    (* unfold Z.modulo in H1. unfold Z.modulo in H. *)
+    (* - destruct H0. unfold Z.divide in H1. unfold Z.divide in H. *)
