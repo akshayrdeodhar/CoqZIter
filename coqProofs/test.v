@@ -125,6 +125,21 @@ Compute iteratorStep myIterator.
 Compute iteratorStart myIterator.
 Compute iteratorEnd myIterator.
 
+(* Lemma mul_comm : forall a b : Z, a * b = b * a.
+Proof.
+    intros.
+    induction a.
+    - induction b.
+        + reflexivity.
+        + 
+
+Lemma mul_assoc : forall a b c : Z, (a * b) * c = a * (b * c).
+Proof.
+    intros. induction a.
+    - reflexivity.
+    - simpl.
+     *)
+
 Lemma mod_of_iter : forall x  c : Z, forall I : Iterator,
     (c | (iteratorStep I)) /\ (inIterator x I) -> x mod c = (iteratorStart I) mod c.
 Proof.
