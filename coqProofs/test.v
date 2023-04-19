@@ -106,3 +106,29 @@ Proof. intros x I H. unfold inIterator in H. unfold iteratorMax.
 Qed.
     
 
+Definition iteratorStep  (I: Iterator) : Z := 
+    match I with 
+    | iterator _ _ _step => _step
+    end.
+
+Definition iteratorStart (I: Iterator) : Z := 
+    match I with 
+    | iterator _start _ _ => _start
+    end.
+
+Definition iteratorEnd (I: Iterator) : Z := 
+    match I with 
+    | iterator _ _end _ => _end
+    end.
+
+Compute iteratorStep myIterator.
+Compute iteratorStart myIterator.
+Compute iteratorEnd myIterator.
+
+Lemma mod_of_iter : forall x  c : Z, forall I : Iterator,
+    (c | (iteratorStep I)) /\ (inIterator x I) -> x mod c = (iteratorStart I) mod c.
+Proof.
+    intros. destruct H. destruct I. unfold iteratorStep in H. 
+    unfold iteratorStart. unfold inIterator in H0. destruct _step.
+    - rewrite -> H0. reflexivity.
+    - destruct H0. unfold Z.divide in H1. unfold Z.divide in H.
