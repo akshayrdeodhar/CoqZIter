@@ -191,7 +191,7 @@ Proof. simpl. split. discriminate. discriminate.
 Qed.
 
 Remark not_in_myinterval : ~ (inInterval 12 myInterval).
-Proof. unfold not. intros H. destruct H as [H0 H1]. 
+Proof. unfold not. intros H. destruct H as [H0 H1].
     destruct H1. reflexivity.
 Qed.
 
@@ -205,6 +205,18 @@ Theorem interval_add : forall a b : Z, forall A B : Interval,
         (interval ((intervalStart A) + (intervalStart B))
                   ((intervalEnd A) + (intervalEnd B)))).
 Proof.
-    intros a b A B. intros H. unfold inInterval. 
-    unfold intervalStart. destruct A. destruct B.
-    unfold intervalEnd. split.
+    intros a b A B H. destruct H as [H0 H1]. 
+    unfold inInterval.
+    destruct A as [aStart aEnd]. destruct B as [bStart bEnd]. 
+    unfold intervalStart. unfold intervalEnd. 
+    unfold inInterval in H0. unfold inInterval in H1.
+    destruct H1 as [H2 H3]. destruct H0 as [H0 H1].
+    split. 
+    - apply Zplus_le_compat.
+        + assumption.
+        + assumption.
+    - apply Zplus_le_compat.
+        + assumption.
+        + assumption.
+Qed.
+
