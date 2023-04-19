@@ -191,6 +191,20 @@ Proof. simpl. split. discriminate. discriminate.
 Qed.
 
 Remark not_in_myinterval : ~ (inInterval 12 myInterval).
-Proof. unfold not. intros H. destruct H. destruct H0. 
+Proof. unfold not. intros H. destruct H as [H0 H1]. 
+    destruct H1. reflexivity.
+Qed.
+
 
 (* Does defining intervals as special cases of Iterator with step 1 help ? *)
+
+Theorem interval_add : forall a b : Z, forall A B : Interval, 
+    (inInterval a A) /\ (inInterval b B) -> 
+    (inInterval 
+        (a + b) 
+        (interval ((intervalStart A) + (intervalStart B))
+                  ((intervalEnd A) + (intervalEnd B)))).
+Proof.
+    intros a b A B. intros H. unfold inInterval. 
+    unfold intervalStart. destruct A. destruct B.
+    unfold intervalEnd. split.
