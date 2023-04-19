@@ -93,11 +93,16 @@ Definition iteratorMax (I: Iterator) : Z :=
 Check iteratorMax myIterator = 10.
 Check iteratorMax myNegIterator = 10.
 
+Lemma always_geq : forall x : Z, x >= x.
+Proof. intros x. apply Z.ge_le_iff. apply always_leq.
+Qed.
 
 Lemma max_of_iter: forall x : Z, forall I : Iterator, (inIterator x I) -> x <= (iteratorMax I).
 Proof. intros x I H. unfold inIterator in H. unfold iteratorMax.
-       destruct I. destruct _step.
-       Admitted.
+    destruct I. destruct _step. destruct H.
+    - apply always_leq.
+    - destruct H. destruct H. assumption.
+    - destruct H. destruct H. assumption.
+Qed.
     
-
 
