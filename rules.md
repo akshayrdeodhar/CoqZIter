@@ -1,9 +1,9 @@
 
 1. If $x \in [a, b] \wedge y \in [c, d]$
-    - $x + y \in [a + c, b + d]$
-    - $x - y \in [a - d, b - c]$
-    - $x * y \in $
-    - $x / y \in $
+    - [x] $x + y \in [a + c, b + d]$
+    - [x] $x - y \in [a - d, b - c]$
+    - [ ] $x * y \in $
+    - [ ] $x / y \in $
 
 2. If $x \in [a, b]$ then
     - $x / k$ => ? (constant or zero?)
