@@ -64,14 +64,19 @@ Definition myNegIterator : Iterator := iterator 10 1 (-1).
 Compute iteratorMin myIterator.
 Compute iteratorMin myNegIterator.
 
+Lemma always_leq : forall x : Z, x <= x. 
+Proof.
+    intros. induction x.
+    - discriminate.
+    - induction p. assumption. assumption. discriminate.
+    - induction p. assumption. assumption. discriminate.
+Qed.
+
 Lemma min_of_iter : forall x : Z, forall I : Iterator, (inIterator x I) -> (iteratorMin I) <= x.
 Proof.
     intros. unfold inIterator in H. unfold iteratorMin. destruct I. destruct _step.
     destruct H.
-    - induction x.
-        + discriminate.
-        + induction p. auto. auto. discriminate.
-        + induction p. auto. auto. discriminate.
+    - apply always_leq.
     - destruct H. destruct H. assumption.
     - destruct H. destruct H. assumption.
 Qed.
