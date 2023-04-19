@@ -162,3 +162,35 @@ Qed.
 
     (* unfold Z.modulo in H1. unfold Z.modulo in H. *)
     (* - destruct H0. unfold Z.divide in H1. unfold Z.divide in H. *)
+
+
+
+Inductive Interval : Type :=
+    | interval (_start _end : Z).
+
+Definition intervalStart (I: Interval) : Z :=
+    match I with
+    interval _start _ => _start
+    end.
+
+Definition intervalEnd (I: Interval) : Z := 
+    match I with
+    interval _ _end => _end
+    end.
+
+Definition inInterval (x: Z) (I: Interval) :=
+    match I with
+    interval _start _end => _start <= x <= _end
+    end.
+
+
+Definition myInterval : Interval := interval (-5) 10.
+
+Remark is_in_myinterval : (inInterval 0 myInterval).
+Proof. simpl. split. discriminate. discriminate.
+Qed.
+
+Remark not_in_myinterval : ~ (inInterval 12 myInterval).
+Proof. unfold not. intros H. destruct H. destruct H0. 
+
+(* Does defining intervals as special cases of Iterator with step 1 help ? *)
