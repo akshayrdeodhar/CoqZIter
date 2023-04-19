@@ -1,7 +1,7 @@
 From Coq Require Import ZArith.
 Require Import Coq.Init.Logic.
 Require Import Coq.Logic.Classical_Prop.
-Require Import BinPos BinInt Decidable Zcompare.
+Require Import BinPos BinInt Decidable Zcompare Znumtheory.
 Require Import Arith_base.
 
 Local Open Scope Z_scope.
@@ -125,10 +125,47 @@ Compute iteratorStep myIterator.
 Compute iteratorStart myIterator.
 Compute iteratorEnd myIterator.
 
+(* Lemma mul_comm : forall a b : Z, a * b = b * a.
+Proof.
+    intros.
+    induction a.
+    - induction b.
+        + reflexivity.
+        + 
+
+Lemma mul_assoc : forall a b c : Z, (a * b) * c = a * (b * c).
+Proof.
+    intros. induction a.
+    - reflexivity.
+    - simpl.
+     *)
+
 Lemma mod_of_iter : forall x  c : Z, forall I : Iterator,
     (c | (iteratorStep I)) /\ (inIterator x I) -> x mod c = (iteratorStart I) mod c.
 Proof.
     intros. destruct H. destruct I. unfold iteratorStep in H. 
     unfold iteratorStart. unfold inIterator in H0. destruct _step.
     - rewrite -> H0. reflexivity.
-    - destruct H0. unfold Z.divide in H1. unfold Z.divide in H.
+    - destruct H0. unfold Z.divide in H. destruct H as [z H].
+        rewrite -> H in H1. unfold Z.divide in H1. destruct H1 as [z1 H1].
+        assert (mul_assoc : z1 * (z * c) = (z1 * z) * c).
+        apply Zmult_assoc.
+        assert (c | (x - _start)).
+        rewrite -> H1. rewrite mul_assoc. exists (z1 * z). reflexivity.
+        unfold Z.divide in H2. destruct H2 as [z2 H2].
+        assert (x = _start + z2 * c).
+        rewrite <- H2. ring.
+        rewrite -> H3. apply Z_mod_plus_full.
+    - destruct H0. destruct H1. 
+        assert (c | x0 * Z.neg p).
+        apply Zdivide_mult_r. assumption.
+        assert (c | (_start - x)).
+        rewrite -> H1. assumption.
+        destruct H3.
+        assert (_start = x + x1 * c).
+        rewrite <- H3. ring.
+        rewrite -> H4.
+        symmetry. apply Z_mod_plus_full.
+    Qed.
+
+

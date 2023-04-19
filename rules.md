@@ -15,7 +15,7 @@
 
 4. Iterator simplifications
     - If $x \in I(start, end, step)$
-        - If $c | step$, then $x % c = start % c$
+        - If $c | step$, then $x \% c = start \% c$
     - If $x = I$
         - If $c | step$ then $x / c = I(start / c, end / c, step / c)$
     - If $x = I$%
