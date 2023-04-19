@@ -76,3 +76,23 @@ Proof.
     - destruct H. destruct H. assumption.
 Qed.
  
+Definition iteratorMax (I: Iterator) : Z := 
+    match I with 
+    | iterator _start _end _step =>
+        match _step  with
+        | Zpos _ => _end
+        | _ => _start
+        end
+    end.
+
+Check iteratorMax myIterator = 10.
+Check iteratorMax myNegIterator = 10.
+
+
+Lemma max_of_iter: forall x : Z, forall I : Iterator, (inIterator x I) -> x <= (iteratorMax I).
+Proof. intros x I H. unfold inIterator in H. unfold iteratorMax.
+       destruct I. destruct _step.
+       Admitted.
+    
+
+
