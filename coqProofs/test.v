@@ -70,9 +70,10 @@ Proof.
     destruct H.
     - induction x.
         + discriminate.
-        + induction p. auto. auto. discriminate.
-        + induction p. auto. auto. discriminate.
+        + induction p. assumption. assumption. discriminate.
+        + induction p. assumption. assumption. discriminate.
     - destruct H. destruct H. assumption.
     - destruct H. destruct H. assumption.
 Qed.
+
  
