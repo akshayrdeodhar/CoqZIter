@@ -178,6 +178,10 @@ Definition intervalEnd (I: Interval) : Z :=
     interval _ _end => _end
     end.
 
+Notation intervalMin := intervalStart.
+Notation intervalMax := intervalEnd.
+
+
 Definition inInterval (x: Z) (I: Interval) :=
     match I with
     interval _start _end => _start <= x <= _end
@@ -231,3 +235,20 @@ Proof.
     - destruct H. assumption.
     - destruct H. assumption.
 Qed.
+(* Iterator Interval Equivalency *)
+
+Theorem iterator_interval_eq : forall x : Z, forall It : Interval, 
+    (inInterval x It) -> 
+    (inIterator x (iterator (intervalStart It) (intervalEnd It) 1)).
+Proof.
+    intros. destruct It. unfold inInterval in H.
+    unfold intervalStart. unfold intervalEnd.
+    unfold inIterator. split.
+    - assumption.
+    - exists (x - _start). ring.
+Qed.
+
+
+
+
+
