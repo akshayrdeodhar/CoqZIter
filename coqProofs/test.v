@@ -1,7 +1,7 @@
 From Coq Require Import ZArith.
 Require Import Coq.Init.Logic.
 Require Import Coq.Logic.Classical_Prop.
-Require Import BinPos BinInt Decidable Zcompare Znumtheory.
+Require Import BinPos BinInt Decidable Zcompare Znumtheory Zorder.
 Require Import Arith_base.
 
 Local Open Scope Z_scope.
@@ -207,4 +207,13 @@ Theorem interval_add : forall a b : Z, forall A B : Interval,
 Proof.
     intros a b A B. intros H. unfold inInterval. 
     unfold intervalStart. destruct A. destruct B.
-    unfold intervalEnd. split.
+    unfold intervalEnd. split. 
+    destruct H as [H1 H2]. unfold inInterval in H1.
+    unfold inInterval in H2. 
+    destruct H1 as [H11 H12]. destruct H2 as [H21 H22].
+    assert (_start + _start0 <= a + _start0). apply Zplus_le_compat_r. assumption.
+    assert (a + _start0 <= a + b). apply Zplus_le_compat_l. assumption.
+
+
+
+
