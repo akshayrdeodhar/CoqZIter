@@ -19,7 +19,7 @@
     - If $x = I$
         - If $c | step$ then $x / c = I(start / c, end / c, step / c)$
     - If $x = I$%
-        - $x + c$ = I(start + c, end, step)
+        - $x + c$ = I(start + c, end + c, step)
 
 5. Division simplifications
     - If $x \in I \wedge {something}$

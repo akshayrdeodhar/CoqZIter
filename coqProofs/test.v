@@ -16,14 +16,15 @@ Qed.
 Inductive MySet : Type :=
     | Inclusive (a : Z) (b: Z). (* set of integers including a and b *)
 
-    (* TODO: Step must be positive *)
-Inductive Iterator : Type :=
-    | iterator (_start _end _step : Z).
-
 Definition inMySet (x : Z) (A : MySet) : Prop :=
     match A with
     | Inclusive a b => a <= x /\ x <= b
     end.
+
+    (* TODO: Step must be positive *)
+
+Inductive Iterator : Type :=
+    | iterator (_start _end _step : Z).
 
 Definition inIterator (x : Z) (I : Iterator) :=
     match I with 
@@ -163,6 +164,29 @@ Qed.
     (* unfold Z.modulo in H1. unfold Z.modulo in H. *)
     (* - destruct H0. unfold Z.divide in H1. unfold Z.divide in H. *)
 
+Lemma div_of_iter : forall x c : Z, forall I : Iterator,
+    (c <> 0) /\ (c | (iteratorStep I)) /\ (inIterator x I) /\ 
+        (inIterator (iteratorEnd I) I) -> 
+    (inIterator (x / c) 
+        (iterator ((iteratorStart I) / c) 
+                  ((iteratorEnd I) / c) 
+                  ((iteratorStep I) / c))).
+Proof.
+    intros. destruct H as [H0 [H1 [H2 H3]]]. destruct I. 
+    unfold iteratorStep in H1. 
+    unfold iteratorEnd in H3. 
+    unfold iteratorStart. unfold iteratorEnd. unfold iteratorStep.
+    unfold inIterator in H2. 
+    unfold inIterator in H3.
+    induction _step. (* _step is now p *)
+    - rewrite H2. unfold inIterator. simpl. reflexivity.
+    - destruct H2 as [[H21 H22] H23]. destruct H3 as [[H31 H32] H33].
+        unfold inIterator. induction c. (* c is now p0 *)
+        + contradiction.
+        + destruct H1. assert (x0 > 0).
+            -- 
+            -- 
+Qed.
 
 
 Inductive Interval : Type :=
@@ -213,13 +237,7 @@ Proof.
     unfold intervalStart. unfold intervalEnd. 
     unfold inInterval in H0. unfold inInterval in H1.
     destruct H1 as [H2 H3]. destruct H0 as [H0 H1].
-    split. 
-    - apply Zplus_le_compat.
-        + assumption.
-        + assumption.
-    - apply Zplus_le_compat.
-        + assumption.
-        + assumption.
+    split; apply Zplus_le_compat. all: assumption.
 Qed.
 
 Theorem interval_sub: forall a b : Z, forall A B : Interval,
@@ -247,7 +265,7 @@ Proof.
 Qed.
 
 
-Theorem iterator_to_interval : forall x : Z, forall It : Iterator,
+Lemma iterator_to_interval : forall x : Z, forall It : Iterator,
     (inIterator x It) -> (inInterval x (interval (iteratorMin It) (iteratorMax It))).
 Proof.
     intros x It. intros H. unfold inIterator in H.  unfold inInterval.
@@ -259,7 +277,7 @@ Qed.
 
 (* Iterator Interval Equivalency *)
 
-Theorem iterator_interval_eq : forall x : Z, forall In : Interval, 
+Lemma iterator_interval_eq : forall x : Z, forall In : Interval, 
     (inInterval x In) -> 
     (inIterator x (iterator (intervalStart In) (intervalEnd In) 1)).
 Proof.
