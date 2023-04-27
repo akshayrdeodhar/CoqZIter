@@ -248,7 +248,40 @@ Proof.
     - exists (x - _start). ring.
 Qed.
 
+(*
+Theorem interval_mul: forall x y xl xr yl yr prodmin prodmax: Z, forall X Y : Interval,
+    xl = intervalMin X /\ xr = intervalMax X /\ yl = intervalMin Y /\ yr = intervalMax Y /\ 
+    prodmin = (Z.min (Z.min (xl * yl) (xl * yr)) (Z.min (xr * yl) (xr * yr))) /\
+    prodmax = (Z.max (Z.max (xl * yl) (xl * yr)) (Z.max (xr * yl) (xr * yr))) /\
+    (inInterval x X) /\ (inInterval y Y)  ->
+    (inInterval (x * y) (interval prodmin prodmax)).
+Proof.
+    intros x y xl xr yl yr prodmin prodmax X Y. intros H.
+    unfold intervalMin in H. unfold intervalMax in H. 
+    unfold inInterval in H. 
+    destruct X in H. destruct Y in H.
+    destruct H as [H0 [H1 [H2 [H3 [H4 [H5 [H6 H7]]]]]]].
+    unfold inInterval. split.
+    - rewrite H4. rewrite <- H0 in H6. rewrite <- H1 in H6.
+      rewrite <- H2 in H7. rewrite <- H3 in H7. induction x.
+      destruct H6. destruct H7.
+      + induction y.
+        -- simpl. unfold Z.min.
+           assert (0 <= (xl * yl)). 
+           { induction xl. 
+            { discriminate. }
+            { discriminate H.
+           assert ((xl * yr) <= 0).
+           assert (0 <= (xr * yr)).
+           assert ((xr * yl) <= 0). 
+           ++ 
+*)
 
-
-
+(* Theorem repeated_div : forall x a b : Z,  a <> 0 /\ b <> 0 -> (x / a) / b = x / (a * b).  Proof. *)
+    (* intros x a b H. *)
+    (* destruct H as [H0 H1]. *)
+    (* assert (x / a = x / a). auto. *)
+    (* assert ((x * b) / (a * b) = x / a).  *)
+        (* - apply Z.div_mul_cancel_r. assumption. assumption. *)
+        (* -  *)
 
