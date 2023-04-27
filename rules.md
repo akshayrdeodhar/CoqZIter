@@ -1,9 +1,9 @@
 
 1. If $x \in [a, b] \wedge y \in [c, d]$
-    - $x + y \in [a + c, b + d]$
-    - $x - y \in [a - d, b - c]$
-    - $x * y \in $
-    - $x / y \in $
+    - [x] $x + y \in [a + c, b + d]$
+    - [x] $x - y \in [a - d, b - c]$
+    - [ ] $x * y \in $
+    - [ ] $x / y \in $
 
 2. If $x \in [a, b]$ then
     - $x / k$ => ? (constant or zero?)
@@ -19,7 +19,7 @@
     - If $x = I$
         - If $c | step$ then $x / c = I(start / c, end / c, step / c)$
     - If $x = I$%
-        - $x + c$ = I(start + c, end, step)
+        - $x + c$ = I(start + c, end + c, step)
 
 5. Division simplifications
     - If $x \in I \wedge {something}$
