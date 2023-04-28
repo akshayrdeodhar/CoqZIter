@@ -164,30 +164,6 @@ Qed.
     (* unfold Z.modulo in H1. unfold Z.modulo in H. *)
     (* - destruct H0. unfold Z.divide in H1. unfold Z.divide in H. *)
 
-Lemma div_of_iter : forall x c : Z, forall I : Iterator,
-    (c <> 0) /\ (c | (iteratorStep I)) /\ (inIterator x I) /\ 
-        (inIterator (iteratorEnd I) I) -> 
-    (inIterator (x / c) 
-        (iterator ((iteratorStart I) / c) 
-                  ((iteratorEnd I) / c) 
-                  ((iteratorStep I) / c))).
-Proof.
-    intros. destruct H as [H0 [H1 [H2 H3]]]. destruct I. 
-    unfold iteratorStep in H1. 
-    unfold iteratorEnd in H3. 
-    unfold iteratorStart. unfold iteratorEnd. unfold iteratorStep.
-    unfold inIterator in H2. 
-    unfold inIterator in H3.
-    induction _step. (* _step is now p *)
-    - rewrite H2. unfold inIterator. simpl. reflexivity.
-    - destruct H2 as [[H21 H22] H23]. destruct H3 as [[H31 H32] H33].
-        unfold inIterator. induction c. (* c is now p0 *)
-        + contradiction.
-        + destruct H1. assert (x0 > 0).
-            -- 
-            -- 
-Qed.
-
 
 Inductive Interval : Type :=
     | interval (_start _end : Z).
@@ -316,12 +292,3 @@ Proof.
            assert ((xr * yl) <= 0). 
            ++ 
 *)
-
-(* Theorem repeated_div : forall x a b : Z,  a <> 0 /\ b <> 0 -> (x / a) / b = x / (a * b).  Proof. *)
-    (* intros x a b H. *)
-    (* destruct H as [H0 H1]. *)
-    (* assert (x / a = x / a). auto. *)
-    (* assert ((x * b) / (a * b) = x / a).  *)
-        (* - apply Z.div_mul_cancel_r. assumption. assumption. *)
-        (* -  *)
-
