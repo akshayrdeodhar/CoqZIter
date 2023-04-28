@@ -167,7 +167,7 @@ Proof.
             - destruct H as [H0 H2]. destruct H0 as [H0 H1]. repeat split.
                 + apply Zplus_le_compat_r. assumption.
                 + apply Zplus_le_compat_r. assumption.
-                + assert (_start + c - (x + c) = _start - x). nia. 
+                + assert (_start + c - (x + c) = _start - x). nia.
                   rewrite H. assumption.
 Qed.
 
@@ -215,51 +215,80 @@ Proof.
         + simpl. rewrite H2. reflexivity.
         + simpl. unfold Z.div. simpl. unfold Z.pos_div_eucl. simpl. *)
 
-    induction _step as [ | step_p | step_n ].
+    induction _step as [ | step | step ].
+    (* easy when step is 0 *)
     - rewrite H2. unfold inIterator. simpl. reflexivity.
+    (* now step is positive *)
     - destruct H2 as [[H21 H22] H23]. destruct H3 as [[H31 H32] H33].
-        unfold inIterator. induction c as [ | c_p | c_n ].
-        + contradiction. (* step_by_c = 0 *)
-        + destruct H1 as [ step_by_c H1]. 
-            assert (step_by_c > 0) as H4. nia. 
+        unfold inIterator. induction c as [ | c | c ].
+        (* contradiction when c = 0 *)
+        + contradiction.
+        (* now c is positive *)
+        + destruct H1 as [ step_by_c H1].
+            (* assert (step_by_c > 0) as H4 by nia. *)
             rewrite H1.
-            assert (step_by_c * Z.pos c_p / Z.pos c_p = step_by_c) as H5. 
+            assert (step_by_c * Z.pos c / Z.pos c = step_by_c) as H4.
                 apply Z_div_mult_full. assumption.
-            rewrite H5. induction step_by_c as [ | step_by_c_p | step_by_c_n ].
+            rewrite H4. induction step_by_c as [ | step_by_c | step_by_c ].
+            (* induction only for completeness, step by c can only be positive *)
+            (* step by c = 0 *)
             -- discriminate H1. (* Invalid case *)
+            (* step by c is positive *)
             -- repeat split. (* The only valid case *)
                 ++ apply Z_div_le. reflexivity. assumption. (* within lower bound *)
                 ++ apply Z_div_le. reflexivity. assumption. (* within upper bound *)
+                (* step divisibility *)
                 ++ destruct H23 as [x_minus_start_by_step H23].
                     rewrite H1 in H23.
                     assert (x = _start + 
-                        x_minus_start_by_step * Z.pos step_by_c_p * Z.pos c_p) as H6. 
-                        nia.
-                    remember (x_minus_start_by_step * Z.pos step_by_c_p) as zz'.
-                    assert (x / Z.pos c_p = _start / Z.pos c_p + zz') as H7.
-                    rewrite H6. apply Z_div_plus_full. discriminate.
-                    exists x_minus_start_by_step. rewrite H7. rewrite Heqzz'. ring.
-            -- discriminate H4.
+                        x_minus_start_by_step * Z.pos step_by_c * Z.pos c) 
+                        as H5 by nia.
+                    assert (x / Z.pos c = _start / Z.pos c + 
+                        x_minus_start_by_step * Z.pos step_by_c) as H6.
+                    rewrite H5. apply Z_div_plus_full. discriminate.
+                    exists x_minus_start_by_step. rewrite H6. ring.
+            (* step by c is negative *)
+            -- discriminate H1.
+        (* now c is negative *)
         + destruct H1 as [ step_by_c H1].
-            assert (step_by_c < 0) as H4. nia.
+            (* assert (step_by_c < 0) as H4 by nia. *)
             rewrite H1.
-            assert (step_by_c * Z.neg c_n / Z.neg c_n = step_by_c) as H5.
+            assert (step_by_c * Z.neg c / Z.neg c = step_by_c) as H4.
                 apply Z_div_mult_full. assumption.
-            rewrite H5. induction step_by_c as [ | step_by_c_p | step_by_c_n ].
-            -- discriminate H4.
-            -- discriminate H4.
-            -- assert (Z.neg c_n = -(Z.pos c_n)) as H6. nia.
-                
+            rewrite H4. induction step_by_c as [ | step_by_c | step_by_c ].
+            (* induction only for completeness, step by c can only be negative *)
+            (* step by c = 0 *)
+            -- discriminate H1.
+            (* step by c is positive *)
+            -- discriminate H1.
+            (* step by c is negative *)
+            -- assert (Z.pos c = - Z.neg c) as H5 by nia.
             repeat split. 
-                ++ assert (Z.neg c_n = -(Z.pos c_n)) as H6. nia.
-                    assert (-_end <= -x) as H7. nia.
-                    assert ((-_end / Z.pos c_n) <= (-x / Z.pos c_n)) as H8. 
-                    apply Z_div_le. reflexivity. assumption.
-                    assert (Z.pos c_n = -(Z.neg c_n)) as H9. nia.
-                    rewrite H9 in H8.
-                    repeat rewrite Zdiv_opp_opp in H8. assumption.
-                ++ assert (Z.neg c_n = -(Z.pos c_n)) as H6. nia.
-                    assert 
+                (* lower bound *)
+                ++ assert (-_end <= -x) as H6 by nia.
+                   assert ((-_end / Z.pos c) <= (-x / Z.pos c)) as H7.
+                        apply Z_div_le. reflexivity. assumption.
+                   rewrite H5 in H7.
+                   repeat rewrite Zdiv_opp_opp in H7. assumption.
+                (* upper bound *)
+                ++ assert (-x <= - _start) as H6 by nia.
+                   assert (- x / Z.pos c <= - _start / Z.pos c) as H7.
+                        apply Z_div_le. reflexivity. assumption.
+                   rewrite H5 in H7.
+                   repeat rewrite Zdiv_opp_opp in H7. assumption.
+                (* step divisibility *)
+                ++ destruct H23 as [x_minus_start_by_step H23].
+                   rewrite H1 in H23.
+                   assert (x = _start + 
+                        x_minus_start_by_step * Z.neg step_by_c * Z.neg c)
+                        as H6 by nia.
+                   assert (x / Z.neg c = _start / Z.neg c + 
+                        x_minus_start_by_step * Z.neg step_by_c) as H7.
+                        rewrite H6. apply Z_div_plus_full. discriminate.
+                        exists (- x_minus_start_by_step). rewrite H7. ring.
+    (* step is negative *)
+     - destruct H2 as [[H21 H22] H23]. destruct H3 as [[H31 H32] H33].
+     
 Qed.
 
 
