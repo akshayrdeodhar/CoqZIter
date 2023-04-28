@@ -143,6 +143,34 @@ Proof.
     - simpl.
      *)
 
+Lemma add_of_iter : forall x c: Z, forall I: Iterator,
+      (inIterator x I) -> 
+      (inIterator (x + c) 
+        (iterator ((iteratorStart I) + c) 
+                  ((iteratorEnd I) + c)
+                  (iteratorStep I))).
+Proof.
+        intros. destruct I.
+        (* destruct I _now_ because we want the same _start, _end, _step
+           in hypothesis and consequent*)
+        unfold inIterator in H. 
+        unfold iteratorStart. unfold iteratorEnd. unfold iteratorStep.
+        unfold inIterator. destruct _step. 
+            (* todo: x = _start is the first case, I want 
+                preconditions for the other two cases too!*)
+            - rewrite H. reflexivity.
+            - destruct H as [H0 H2]. destruct H0 as [H0 H1]. repeat split.
+                + apply Zplus_le_compat_r. assumption.
+                + apply Zplus_le_compat_r. assumption.
+                + assert (x + c - (_start + c) = x - _start). nia.
+                  rewrite H. assumption.
+            - destruct H as [H0 H2]. destruct H0 as [H0 H1]. repeat split.
+                + apply Zplus_le_compat_r. assumption.
+                + apply Zplus_le_compat_r. assumption.
+                + assert (_start + c - (x + c) = _start - x). nia. 
+                  rewrite H. assumption.
+Qed.
+
 Lemma mod_of_iter : forall x  c : Z, forall I : Iterator,
     (c | (iteratorStep I)) /\ (inIterator x I) -> x mod c = (iteratorStart I) mod c.
 Proof.
@@ -166,8 +194,6 @@ Qed.
     (* unfold Z.modulo in H1. unfold Z.modulo in H. *)
     (* - destruct H0. unfold Z.divide in H1. unfold Z.divide in H. *)
 
-<<<<<<< HEAD
-=======
 Lemma div_of_iter : forall x c : Z, forall I : Iterator,
     (c <> 0) /\ (c | (iteratorStep I)) /\ (inIterator x I) /\ 
         (inIterator (iteratorEnd I) I) -> 
@@ -236,7 +262,6 @@ Proof.
                     assert 
 Qed.
 
->>>>>>> 5c93384e922c4c6d829a154ff44119fe41c1fb51
 
 Inductive Interval : Type :=
     | interval (_start _end : Z).
