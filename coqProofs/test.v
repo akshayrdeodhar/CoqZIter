@@ -1,8 +1,10 @@
 From Coq Require Import ZArith.
 Require Import Coq.Init.Logic.
 Require Import Coq.Logic.Classical_Prop.
-Require Import BinPos BinInt Decidable Zcompare Znumtheory Zorder.
+Require Import BinPos BinInt BinNums Decidable Zcompare Znumtheory Zorder.
 Require Import Arith_base.
+Require Import Coq.micromega.Lia.
+Require Import Field.
 
 Local Open Scope Z_scope.
 
@@ -164,6 +166,77 @@ Qed.
     (* unfold Z.modulo in H1. unfold Z.modulo in H. *)
     (* - destruct H0. unfold Z.divide in H1. unfold Z.divide in H. *)
 
+<<<<<<< HEAD
+=======
+Lemma div_of_iter : forall x c : Z, forall I : Iterator,
+    (c <> 0) /\ (c | (iteratorStep I)) /\ (inIterator x I) /\ 
+        (inIterator (iteratorEnd I) I) -> 
+    (inIterator (x / c) 
+        (iterator ((iteratorStart I) / c) 
+                  ((iteratorEnd I) / c) 
+                  ((iteratorStep I) / c))).
+Proof.
+    intros. destruct H as [H0 [H1 [H2 H3]]]. destruct I. 
+    unfold iteratorStep in H1. 
+    unfold iteratorEnd in H3. 
+    unfold iteratorStart. unfold iteratorEnd. unfold iteratorStep.
+    unfold inIterator in H2. 
+    unfold inIterator in H3.
+    unfold inIterator.
+    (* induction c.
+    - contradiction.
+    - induction _step.
+        + simpl. rewrite H2. reflexivity.
+        + simpl. unfold Z.div. simpl. unfold Z.pos_div_eucl. simpl. *)
+
+    induction _step as [ | step_p | step_n ].
+    - rewrite H2. unfold inIterator. simpl. reflexivity.
+    - destruct H2 as [[H21 H22] H23]. destruct H3 as [[H31 H32] H33].
+        unfold inIterator. induction c as [ | c_p | c_n ].
+        + contradiction. (* step_by_c = 0 *)
+        + destruct H1 as [ step_by_c H1]. 
+            assert (step_by_c > 0) as H4. nia. 
+            rewrite H1.
+            assert (step_by_c * Z.pos c_p / Z.pos c_p = step_by_c) as H5. 
+                apply Z_div_mult_full. assumption.
+            rewrite H5. induction step_by_c as [ | step_by_c_p | step_by_c_n ].
+            -- discriminate H1. (* Invalid case *)
+            -- repeat split. (* The only valid case *)
+                ++ apply Z_div_le. reflexivity. assumption. (* within lower bound *)
+                ++ apply Z_div_le. reflexivity. assumption. (* within upper bound *)
+                ++ destruct H23 as [x_minus_start_by_step H23].
+                    rewrite H1 in H23.
+                    assert (x = _start + 
+                        x_minus_start_by_step * Z.pos step_by_c_p * Z.pos c_p) as H6. 
+                        nia.
+                    remember (x_minus_start_by_step * Z.pos step_by_c_p) as zz'.
+                    assert (x / Z.pos c_p = _start / Z.pos c_p + zz') as H7.
+                    rewrite H6. apply Z_div_plus_full. discriminate.
+                    exists x_minus_start_by_step. rewrite H7. rewrite Heqzz'. ring.
+            -- discriminate H4.
+        + destruct H1 as [ step_by_c H1].
+            assert (step_by_c < 0) as H4. nia.
+            rewrite H1.
+            assert (step_by_c * Z.neg c_n / Z.neg c_n = step_by_c) as H5.
+                apply Z_div_mult_full. assumption.
+            rewrite H5. induction step_by_c as [ | step_by_c_p | step_by_c_n ].
+            -- discriminate H4.
+            -- discriminate H4.
+            -- assert (Z.neg c_n = -(Z.pos c_n)) as H6. nia.
+                
+            repeat split. 
+                ++ assert (Z.neg c_n = -(Z.pos c_n)) as H6. nia.
+                    assert (-_end <= -x) as H7. nia.
+                    assert ((-_end / Z.pos c_n) <= (-x / Z.pos c_n)) as H8. 
+                    apply Z_div_le. reflexivity. assumption.
+                    assert (Z.pos c_n = -(Z.neg c_n)) as H9. nia.
+                    rewrite H9 in H8.
+                    repeat rewrite Zdiv_opp_opp in H8. assumption.
+                ++ assert (Z.neg c_n = -(Z.pos c_n)) as H6. nia.
+                    assert 
+Qed.
+
+>>>>>>> 5c93384e922c4c6d829a154ff44119fe41c1fb51
 
 Inductive Interval : Type :=
     | interval (_start _end : Z).

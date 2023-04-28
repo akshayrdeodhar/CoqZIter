@@ -6,28 +6,28 @@
     - [ ] $x / y \in $
 
 2. If $x \in [a, b]$ then
-    - $x / k$ => ? (constant or zero?)
-    - $x \% k$ => ? (x or x + some constant?)
+    - [ ] $x / k$ => ? (constant or zero?)
+    - [ ] $x \% k$ => ? (x or x + some constant?)
 
 3. **Iterators**
     - Let I be an iterator (start, end, step)
     - $x \in I$ if $\exists n < (end - start) / step, x = start + n * step$
 
 4. Iterator simplifications
-    - If $x \in I(start, end, step)$
+    - [x] If $x \in I(start, end, step)$
         - If $c | step$, then $x \% c = start \% c$
-    - If $x = I$
+    - [ ] If $x = I$
         - If $c | step$ then $x / c = I(start / c, end / c, step / c)$
-    - If $x = I$%
+    - [ ] If $x \in I$
         - $x + c$ = I(start + c, end + c, step)
 
 5. Division simplifications
     - If $x \in I \wedge {something}$
-    - $x / a / b = x / (a * b)$
+    - [x] $x / a / b = x / (a * b)$ **Z_div_div**
 
-6. Distributive properties:
+6. Distributive properties: **By Hand**
     - Under _some_ conditions,
-        - $(x + y) % c = $x % c + y % c + {constant}$
+        - $(x + y) \% c = $x \% c + y \% c + {constant}$
         - $(x + y) / c = $x / c + y / c + {constant}$
     - TODO: figure out which condition
     - Has something to do with the gcds of the steps of x and y, and whether the "ring" of modulos remains in [0, c - 1]
