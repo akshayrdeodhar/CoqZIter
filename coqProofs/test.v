@@ -162,12 +162,12 @@ Proof.
             - destruct H as [H0 H2]. destruct H0 as [H0 H1]. repeat split.
                 + apply Zplus_le_compat_r. assumption.
                 + apply Zplus_le_compat_r. assumption.
-                + assert (x + c - (_start + c) = x - _start). nia.
+                + assert (x + c - (_start + c) = x - _start). ring.
                   rewrite H. assumption.
             - destruct H as [H0 H2]. destruct H0 as [H0 H1]. repeat split.
                 + apply Zplus_le_compat_r. assumption.
                 + apply Zplus_le_compat_r. assumption.
-                + assert (_start + c - (x + c) = _start - x). nia. 
+                + assert (_start + c - (x + c) = _start - x). ring. 
                   rewrite H. assumption.
 Qed.
 
@@ -194,6 +194,7 @@ Qed.
     (* unfold Z.modulo in H1. unfold Z.modulo in H. *)
     (* - destruct H0. unfold Z.divide in H1. unfold Z.divide in H. *)
 
+(*
 Lemma div_of_iter : forall x c : Z, forall I : Iterator,
     (c <> 0) /\ (c | (iteratorStep I)) /\ (inIterator x I) /\ 
         (inIterator (iteratorEnd I) I) -> 
@@ -260,7 +261,7 @@ Proof.
                     repeat rewrite Zdiv_opp_opp in H8. assumption.
                 ++ assert (Z.neg c_n = -(Z.pos c_n)) as H6. nia.
                     assert 
-Qed.
+Qed. *)
 
 
 Inductive Interval : Type :=
@@ -362,31 +363,24 @@ Proof.
     - exists (x - _start). ring.
 Qed.
 
-(*
-Theorem interval_mul: forall x y xl xr yl yr prodmin prodmax: Z, forall X Y : Interval,
-    xl = intervalMin X /\ xr = intervalMax X /\ yl = intervalMin Y /\ yr = intervalMax Y /\ 
-    prodmin = (Z.min (Z.min (xl * yl) (xl * yr)) (Z.min (xr * yl) (xr * yr))) /\
-    prodmax = (Z.max (Z.max (xl * yl) (xl * yr)) (Z.max (xr * yl) (xr * yr))) /\
-    (inInterval x X) /\ (inInterval y Y)  ->
-    (inInterval (x * y) (interval prodmin prodmax)).
+Lemma interval_div : forall x c : Z, forall In : Interval,
+    (inInterval x In) /\ ((intervalStart In) / c) = ((intervalEnd In) / c) 
+    /\ c <> 0 ->
+    x / c = (intervalStart In) / c.
 Proof.
-    intros x y xl xr yl yr prodmin prodmax X Y. intros H.
-    unfold intervalMin in H. unfold intervalMax in H. 
-    unfold inInterval in H. 
-    destruct X in H. destruct Y in H.
-    destruct H as [H0 [H1 [H2 [H3 [H4 [H5 [H6 H7]]]]]]].
-    unfold inInterval. split.
-    - rewrite H4. rewrite <- H0 in H6. rewrite <- H1 in H6.
-      rewrite <- H2 in H7. rewrite <- H3 in H7. induction x.
-      destruct H6. destruct H7.
-      + induction y.
-        -- simpl. unfold Z.min.
-           assert (0 <= (xl * yl)). 
-           { induction xl. 
-            { discriminate. }
-            { discriminate H.
-           assert ((xl * yr) <= 0).
-           assert (0 <= (xr * yr)).
-           assert ((xr * yl) <= 0). 
-           ++ 
-*)
+    intros. destruct H as [H0 [H1 H2]]. destruct In.
+    unfold intervalMin in H1. unfold intervalMax in H1.
+    unfold inInterval in H0. destruct H0 as [H3 H4]. unfold intervalMin.
+    induction c.
+        - contradiction. (* c is nonzero *)
+        - apply (@Z_div_le _ _ (Z.pos p)) in H3. 
+          apply (@Z_div_le _ _ (Z.pos p)) in H4.
+          rewrite <- H1 in H4. nia. nia. nia.
+        - 
+          assert ( - Z.neg p <> 0). nia.
+          apply (@Z_div_le _ _ (- Z.neg p)) in H3.
+          apply (@Z_div_le _ _ (- Z.neg p)) in H4.
+          zero_or_not (x mod Z.neg p).
+            + rewrite Z_div_zero_opp_r in H4. rewrite (@Z_div_zero_opp_r x _) in H3.
+            Admitted.
+(* Maybe this does not work if the divisor is negative *)
