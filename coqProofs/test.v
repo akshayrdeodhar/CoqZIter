@@ -207,89 +207,61 @@ Proof.
     unfold iteratorStep in H1. 
     unfold iteratorEnd in H3. 
     unfold iteratorStart. unfold iteratorEnd. unfold iteratorStep.
+    (* common steps taken out *)
+    destruct H1 as [step_by_c H1].
+    rewrite H1.
+    (* rewrite using lemma instead of trying to apply the lemma *)
+    rewrite Z_div_mult_full.
+    (* prove the second goal first as it is easy *)
+    2: assumption.
+    (* go on as usual *)
     unfold inIterator in H2. 
     unfold inIterator in H3.
     unfold inIterator.
-    (* induction c.
-    - contradiction.
-    - induction _step.
-        + simpl. rewrite H2. reflexivity.
-        + simpl. unfold Z.div. simpl. unfold Z.pos_div_eucl. simpl. *)
-
     induction _step as [ | step | step ].
     (* easy when step is 0 *)
-    - rewrite H2. unfold inIterator. simpl. reflexivity.
+    - assert (step_by_c = 0) as H4. nia.
+      rewrite H4. rewrite H2. simpl. reflexivity.
     (* now step is positive *)
     - destruct H2 as [[H21 H22] H23]. destruct H3 as [[H31 H32] H33].
-        unfold inIterator. induction c as [ | c | c ].
-        (* contradiction when c = 0 *)
-        + contradiction.
-        (* now c is positive *)
-        + destruct H1 as [ step_by_c H1].
-            (* assert (step_by_c > 0) as H4 by nia. *)
-            rewrite H1.
-            assert (step_by_c * Z.pos c / Z.pos c = step_by_c) as H4.
-                apply Z_div_mult_full. assumption.
-            rewrite H4. induction step_by_c as [ | step_by_c | step_by_c ].
-            (* induction only for completeness, step by c can only be positive *)
-            (* step by c = 0 *)
-            -- discriminate H1. (* Invalid case *)
-            (* step by c is positive *)
-            -- repeat split. (* The only valid case *)
-                ++ apply Z_div_le. reflexivity. assumption. (* within lower bound *)
-                ++ apply Z_div_le. reflexivity. assumption. (* within upper bound *)
-                (* step divisibility *)
-                ++ destruct H23 as [x_minus_start_by_step H23].
-                    rewrite H1 in H23.
-                    assert (x = _start + 
-                        x_minus_start_by_step * Z.pos step_by_c * Z.pos c) 
-                        as H5 by nia.
-                    assert (x / Z.pos c = _start / Z.pos c + 
-                        x_minus_start_by_step * Z.pos step_by_c) as H6.
-                    rewrite H5. apply Z_div_plus_full. discriminate.
-                    exists x_minus_start_by_step. rewrite H6. ring.
-            (* step by c is negative *)
-            -- discriminate H1.
-        (* now c is negative *)
-        + destruct H1 as [ step_by_c H1].
-            (* assert (step_by_c < 0) as H4 by nia. *)
-            rewrite H1.
-            assert (step_by_c * Z.neg c / Z.neg c = step_by_c) as H4.
-                apply Z_div_mult_full. assumption.
-            rewrite H4. induction step_by_c as [ | step_by_c | step_by_c ].
-            (* induction only for completeness, step by c can only be negative *)
-            (* step by c = 0 *)
-            -- discriminate H1.
-            (* step by c is positive *)
-            -- discriminate H1.
-            (* step by c is negative *)
-            -- assert (Z.pos c = - Z.neg c) as H5 by nia.
-            repeat split. 
-                (* lower bound *)
-                ++ assert (-_end <= -x) as H6 by nia.
-                   assert ((-_end / Z.pos c) <= (-x / Z.pos c)) as H7.
-                        apply Z_div_le. reflexivity. assumption.
-                   rewrite H5 in H7.
-                   repeat rewrite Zdiv_opp_opp in H7. assumption.
-                (* upper bound *)
-                ++ assert (-x <= - _start) as H6 by nia.
-                   assert (- x / Z.pos c <= - _start / Z.pos c) as H7.
-                        apply Z_div_le. reflexivity. assumption.
-                   rewrite H5 in H7.
-                   repeat rewrite Zdiv_opp_opp in H7. assumption.
-                (* step divisibility *)
-                ++ destruct H23 as [x_minus_start_by_step H23].
-                   rewrite H1 in H23.
-                   assert (x = _start + 
-                        x_minus_start_by_step * Z.neg step_by_c * Z.neg c)
-                        as H6 by nia.
-                   assert (x / Z.neg c = _start / Z.neg c + 
-                        x_minus_start_by_step * Z.neg step_by_c) as H7.
-                        rewrite H6. apply Z_div_plus_full. discriminate.
-                        exists (- x_minus_start_by_step). rewrite H7. ring.
-    (* step is negative *)
-     - destruct H2 as [[H21 H22] H23]. destruct H3 as [[H31 H32] H33].
-     
+      destruct H23 as [x_minus_start_by_step H23].
+      rewrite H1 in H23.
+      assert (x = _start + x_minus_start_by_step * step_by_c * c) 
+        as H4 by nia.
+      assert (x / c = _start / c + x_minus_start_by_step * step_by_c)
+        as H5.
+        rewrite H4. apply Z_div_plus_full. assumption.
+      (* induction directly on step_by_c *)
+      induction step_by_c as [ | step_by_c | step_by_c ].
+      (* step by c = 0 is invalid since step is positive *)
+      + discriminate.
+      (* step by c is positive *)
+      (* asserting c > 0 will be helpful in this case *)
+      + assert (c > 0) as H6 by nia.
+        repeat split.
+        (* lower bound *)
+        -- apply Z_div_le. assumption. assumption.
+        (* upper bound *)
+        -- apply Z_div_le. assumption. assumption.
+        (* divisibility *)
+        -- exists x_minus_start_by_step. rewrite H5. ring.
+      (* step by c is negative *)
+      (* asserting -c > 0 will be helpful in this case *)
+      + assert (-c > 0) as H6 by nia.
+        repeat split.
+        (* lower bound *)
+        -- assert (-_end / -c <= -x / -c) as H7.
+            apply Z_div_le. assumption. nia.
+           repeat rewrite Zdiv_opp_opp in H7. assumption.
+        (* upper bound *)
+        -- assert (-x / -c <= -_start / -c) as H7.
+            apply Z_div_le. assumption. nia.
+           repeat rewrite Zdiv_opp_opp in H7. assumption.
+        (* divisibility *)
+        -- exists (-x_minus_start_by_step). rewrite H5. ring.
+    (* now step is negative *)
+    - 
+        
 Qed.
 
 
