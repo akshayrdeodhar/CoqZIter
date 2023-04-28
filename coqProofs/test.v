@@ -167,11 +167,7 @@ Proof.
             - destruct H as [H0 H2]. destruct H0 as [H0 H1]. repeat split.
                 + apply Zplus_le_compat_r. assumption.
                 + apply Zplus_le_compat_r. assumption.
-<<<<<<< HEAD
-                + assert (_start + c - (x + c) = _start - x). nia.
-=======
                 + assert (_start + c - (x + c) = _start - x). ring. 
->>>>>>> c1c7c060508e2cf0d78b7401e55df3b61bb9f120
                   rewrite H. assumption.
 Qed.
 
@@ -198,7 +194,7 @@ Qed.
     (* unfold Z.modulo in H1. unfold Z.modulo in H. *)
     (* - destruct H0. unfold Z.divide in H1. unfold Z.divide in H. *)
 
-(*
+
 Lemma div_of_iter : forall x c : Z, forall I : Iterator,
     (c <> 0) /\ (c | (iteratorStep I)) /\ (inIterator x I) /\ 
         (inIterator (iteratorEnd I) I) -> 
@@ -269,7 +265,6 @@ Proof.
             (* step by c is negative *)
             -- assert (Z.pos c = - Z.neg c) as H5 by nia.
             repeat split. 
-<<<<<<< HEAD
                 (* lower bound *)
                 ++ assert (-_end <= -x) as H6 by nia.
                    assert ((-_end / Z.pos c) <= (-x / Z.pos c)) as H7.
@@ -296,18 +291,6 @@ Proof.
      - destruct H2 as [[H21 H22] H23]. destruct H3 as [[H31 H32] H33].
      
 Qed.
-=======
-                ++ assert (Z.neg c_n = -(Z.pos c_n)) as H6. nia.
-                    assert (-_end <= -x) as H7. nia.
-                    assert ((-_end / Z.pos c_n) <= (-x / Z.pos c_n)) as H8. 
-                    apply Z_div_le. reflexivity. assumption.
-                    assert (Z.pos c_n = -(Z.neg c_n)) as H9. nia.
-                    rewrite H9 in H8.
-                    repeat rewrite Zdiv_opp_opp in H8. assumption.
-                ++ assert (Z.neg c_n = -(Z.pos c_n)) as H6. nia.
-                    assert 
-Qed. *)
->>>>>>> c1c7c060508e2cf0d78b7401e55df3b61bb9f120
 
 
 Inductive Interval : Type :=
