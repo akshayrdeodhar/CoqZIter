@@ -416,4 +416,20 @@ Proof.
           repeat rewrite Zdiv_opp_opp in H6.
           rewrite <- H1 in H6. nia. nia. nia.
 Qed.
-(* Maybe this does not work if the divisor is negative *)
+
+
+Lemma interval_mod : forall x c : Z, forall In : Interval,
+    (inInterval x In) /\ ((intervalStart In) / c) = ((intervalEnd In) / c) 
+    /\ c <> 0 ->
+    (x mod c) = ((intervalStart In) mod c) + (x - (intervalStart In)).
+Proof.
+    intros. apply interval_div in H as H0.
+    destruct H as [H1 [H2 H3]]. destruct In.
+    unfold intervalMin in H2. unfold intervalMax in H2.
+    unfold inInterval in H1. unfold intervalMin in H0.
+    unfold intervalMin. repeat rewrite Zmod_eq_full.
+    rewrite H0. nia. assumption. assumption.
+Qed.
+
+
+
