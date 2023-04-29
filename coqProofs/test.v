@@ -376,11 +376,13 @@ Proof.
         - apply (@Z_div_le _ _ (Z.pos p)) in H3. 
           apply (@Z_div_le _ _ (Z.pos p)) in H4.
           rewrite <- H1 in H4. nia. nia. nia.
-        - 
-          assert ( - Z.neg p <> 0). nia.
-          apply (@Z_div_le _ _ (- Z.neg p)) in H3.
-          apply (@Z_div_le _ _ (- Z.neg p)) in H4.
-          zero_or_not (x mod Z.neg p).
-            + rewrite Z_div_zero_opp_r in H4. rewrite (@Z_div_zero_opp_r x _) in H3.
-            Admitted.
+        - assert ( - Z.neg p > 0). nia.
+          assert (-x <= -_start) as H5. nia.
+          assert (-_end <= -x) as H6. nia.
+          apply (@Z_div_le _ _ (- Z.neg p)) in H5.
+          apply (@Z_div_le _ _ (- Z.neg p)) in H6.
+          repeat rewrite Zdiv_opp_opp in H5.
+          repeat rewrite Zdiv_opp_opp in H6.
+          rewrite <- H1 in H6. nia. nia. nia.
+Qed.
 (* Maybe this does not work if the divisor is negative *)
