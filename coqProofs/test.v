@@ -236,34 +236,64 @@ Proof.
       (* step by c = 0 is invalid since step is positive *)
       + discriminate.
       (* step by c is positive *)
-      (* asserting c > 0 will be helpful in this case *)
-      + assert (c > 0) as H6 by nia.
-        repeat split.
+      + repeat split.
         (* lower bound *)
-        -- apply Z_div_le. assumption. assumption.
+        -- apply Z_div_le. nia. assumption.
         (* upper bound *)
-        -- apply Z_div_le. assumption. assumption.
+        -- apply Z_div_le. nia. assumption.
         (* divisibility *)
         -- exists x_minus_start_by_step. rewrite H5. ring.
       (* step by c is negative *)
-      (* asserting -c > 0 will be helpful in this case *)
-      + assert (-c > 0) as H6 by nia.
-        repeat split.
+      + repeat split.
         (* lower bound *)
-        -- assert (-_end / -c <= -x / -c) as H7.
-            apply Z_div_le. assumption. nia.
-           repeat rewrite Zdiv_opp_opp in H7. assumption.
+        -- assert (-_end / -c <= -x / -c) as H6.
+            apply Z_div_le. nia. nia.
+           repeat rewrite Zdiv_opp_opp in H6. assumption.
         (* upper bound *)
-        -- assert (-x / -c <= -_start / -c) as H7.
-            apply Z_div_le. assumption. nia.
-           repeat rewrite Zdiv_opp_opp in H7. assumption.
+        -- assert (-x / -c <= -_start / -c) as H6.
+            apply Z_div_le. nia. nia.
+           repeat rewrite Zdiv_opp_opp in H6. assumption.
         (* divisibility *)
         -- exists (-x_minus_start_by_step). rewrite H5. ring.
     (* now step is negative *)
-    - 
-        
+    - destruct H2 as [[H21 H22] H23]. destruct H3 as [[H31 H32] H33].
+      destruct H23 as [x_minus_start_by_step H23].
+      rewrite H1 in H23.
+      assert (x = _start + (- x_minus_start_by_step) * step_by_c * c) 
+        as H4 by nia.
+      assert (x / c = _start / c + (- x_minus_start_by_step) * step_by_c)
+        as H5.
+        rewrite H4. apply Z_div_plus_full. assumption.
+      (* induction directly on step by c *)
+      induction step_by_c as [ | step_by_c | step_by_c ].
+      (* step by c = 0 is invalid since step is negative *)
+      + discriminate.
+      (* step by c is positive *)
+      + repeat split.
+        (* lower bound *)
+        -- assert (-_start / -c <= -x / -c) as H6.
+            apply Z_div_le. nia. nia.
+          repeat rewrite Zdiv_opp_opp in H6. assumption.
+        (* upper bound *)
+        -- assert (-x / -c <= -_end / -c) as H6.
+            apply Z_div_le. nia. nia.
+          repeat rewrite Zdiv_opp_opp in H6. assumption.
+        (* divisibility *)
+        -- exists (-x_minus_start_by_step). rewrite H5. ring.
+      (* step by c is negative *)
+      + repeat split.
+        (* lower bound *)
+        -- apply Z_div_le. nia. assumption.
+        (* upper bound *)
+        -- apply Z_div_le. nia. assumption.
+        (* divisibility *)
+        -- exists x_minus_start_by_step. rewrite H5. ring.
 Qed.
 
+Definition kthIterVal (k : Z) (I : Iterator) :=
+  (iteratorStart I) + (k-1) * (iteratorStep I).
+
+Compute kthIterVal 3 (iterator 2 100 3).
 
 Inductive Interval : Type :=
     | interval (_start _end : Z).
