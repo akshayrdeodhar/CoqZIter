@@ -196,16 +196,14 @@ Qed.
 
 
 Lemma div_of_iter : forall x c : Z, forall I : Iterator,
-    (c <> 0) /\ (c | (iteratorStep I)) /\ (inIterator x I) /\ 
-        (inIterator (iteratorEnd I) I) -> 
+    (c <> 0) /\ (c | (iteratorStep I)) /\ (inIterator x I) -> 
     (inIterator (x / c) 
         (iterator ((iteratorStart I) / c) 
                   ((iteratorEnd I) / c) 
                   ((iteratorStep I) / c))).
 Proof.
-    intros. destruct H as [H0 [H1 [H2 H3]]]. destruct I. 
+    intros. destruct H as [H0 [H1 H2]]. destruct I. 
     unfold iteratorStep in H1. 
-    unfold iteratorEnd in H3. 
     unfold iteratorStart. unfold iteratorEnd. unfold iteratorStep.
     (* common steps taken out *)
     destruct H1 as [step_by_c H1].
@@ -216,14 +214,13 @@ Proof.
     2: assumption.
     (* go on as usual *)
     unfold inIterator in H2. 
-    unfold inIterator in H3.
     unfold inIterator.
     induction _step as [ | step | step ].
     (* easy when step is 0 *)
     - assert (step_by_c = 0) as H4. nia.
       rewrite H4. rewrite H2. simpl. reflexivity.
     (* now step is positive *)
-    - destruct H2 as [[H21 H22] H23]. destruct H3 as [[H31 H32] H33].
+    - destruct H2 as [[H21 H22] H23].
       destruct H23 as [x_minus_start_by_step H23].
       rewrite H1 in H23.
       assert (x = _start + x_minus_start_by_step * step_by_c * c) 
@@ -256,7 +253,7 @@ Proof.
         (* divisibility *)
         -- exists (-x_minus_start_by_step). rewrite H5. ring.
     (* now step is negative *)
-    - destruct H2 as [[H21 H22] H23]. destruct H3 as [[H31 H32] H33].
+    - destruct H2 as [[H21 H22] H23].
       destruct H23 as [x_minus_start_by_step H23].
       rewrite H1 in H23.
       assert (x = _start + (- x_minus_start_by_step) * step_by_c * c) 
@@ -302,6 +299,16 @@ Definition kthIterVal (k : Z) (I : Iterator) :=
   (iteratorStart I) + k * (iteratorStep I).
 
 Compute kthIterVal 3 (iterator 2 100 3).
+
+Lemma div_of_iter_kth_val : forall x c k : Z, forall I : Iterator,
+    (c <> 0) /\ (c | (iteratorStep I)) /\ (inIterator x I) -> 
+    kthIterVal k I = kthIterVal k (iterator ((iteratorStart I) / c) 
+                                            ((iteratorEnd I) / c) 
+                                            ((iteratorStep I) / c)).
+Proof.
+    
+Admitted.
+(* Qed. *)
 
 Inductive Interval : Type :=
     | interval (_start _end : Z).
