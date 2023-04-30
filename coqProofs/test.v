@@ -302,11 +302,21 @@ Compute kthIterVal 3 (iterator 2 100 3).
 
 Lemma div_of_iter_kth_val : forall x c k : Z, forall I : Iterator,
     (c <> 0) /\ (c | (iteratorStep I)) /\ (inIterator x I) -> 
-    kthIterVal k I = kthIterVal k (iterator ((iteratorStart I) / c) 
-                                            ((iteratorEnd I) / c) 
-                                            ((iteratorStep I) / c)).
+    (kthIterVal k I) / c = kthIterVal k 
+        (iterator ((iteratorStart I) / c) 
+                  ((iteratorEnd I) / c) 
+                  ((iteratorStep I) / c)).
 Proof.
-    
+    intros. destruct H as [H0 [H1 H2]].
+    destruct I. unfold iteratorStep in H1.
+    unfold iteratorStart. unfold iteratorEnd. unfold iteratorStep.
+    destruct H1 as [step_by_c H1].
+    unfold inIterator in H2.
+    unfold kthIterVal. unfold iteratorStart. unfold iteratorStep.
+    rewrite H1. rewrite Z.mul_assoc. 
+    rewrite Z_div_plus_full. 2: assumption.
+    rewrite Z_div_mult_full. 2: assumption.
+    reflexivity.
 Admitted.
 (* Qed. *)
 
