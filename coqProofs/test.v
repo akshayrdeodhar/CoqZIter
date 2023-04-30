@@ -290,8 +290,16 @@ Proof.
         -- exists x_minus_start_by_step. rewrite H5. ring.
 Qed.
 
+(* kthIterVal gives the value of the k-th iteration *)
+(* This is zero indexed, so 0-th iteration gives start *)
+(* k-th iteration gives start + k * step *)
+(* k-th iteration may not be a valid iteration in the sense 
+   that the value may not lie within the bounds. 
+   Must check the validity separately if needed. 
+   This function accepts all integer values of k, including
+   negative values. *)
 Definition kthIterVal (k : Z) (I : Iterator) :=
-  (iteratorStart I) + (k-1) * (iteratorStep I).
+  (iteratorStart I) + k * (iteratorStep I).
 
 Compute kthIterVal 3 (iterator 2 100 3).
 
