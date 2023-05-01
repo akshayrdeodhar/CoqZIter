@@ -223,6 +223,7 @@ Proof.
     - destruct H2 as [[H21 H22] H23].
       destruct H23 as [x_minus_start_by_step H23].
       rewrite H1 in H23.
+      (* Intermediate lemma *)
       assert (x = _start + x_minus_start_by_step * step_by_c * c) 
         as H4 by nia.
       assert (x / c = _start / c + x_minus_start_by_step * step_by_c)
@@ -256,6 +257,7 @@ Proof.
     - destruct H2 as [[H21 H22] H23].
       destruct H23 as [x_minus_start_by_step H23].
       rewrite H1 in H23.
+      (* Same intermediate lemma as above *)
       assert (x = _start + (- x_minus_start_by_step) * step_by_c * c) 
         as H4 by nia.
       assert (x / c = _start / c + (- x_minus_start_by_step) * step_by_c)
