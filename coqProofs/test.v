@@ -432,4 +432,5 @@ Proof.
 Qed.
 
 
-
+(* 0 <= b -> 0 <= c -> (a/b/c) = a / (b * c) *)
+Check Zdiv_Zdiv.
