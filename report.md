@@ -10,13 +10,25 @@ header-includes:
     - \usepackage{amsmath}
     - \usepackage{amsfonts}
     - \usepackage{thmtools}
+bibliography: "references.bib"
 ---
 
 \newtheorem{theorem}{Lemma}
 
-# Problem Statement
+# Motivation
 
-This project aims to achieve the following goals. (TODO: goals or problems statement?)
+Plasticine \cite{plasticine} is a coarse-grained reconfigurable architecture for deep learning training and inference workloads. The architecture consists of a grid of Pattern Compute Units (PCUs) and Pattern Memory Units (PMUs) connected by an on-chip programmable switching fabric. Off-chip memory access is carried out using Address Generator and Coalescing Units (AGCUs).The hardware can be programmed using a \emph{template DSL}. Address calculations in the PMU and AGCU are done using a reconfigurable scalar datapath.\cite{plasticine} Loop induction variables are programmed using a set of configurable counter chains, where counter start, step and bound can be configured. The number of stages on the datapath are limited. Multidimensional tensor accesses and software-defined banking (where a single large tensor is partitioned over multiple PMUs) lead to complicated address or control expressions for which the available stages are insufficient. Handling this requires the use of an extra PMU purely for address calculations. The DSL compiler, therefore has a set of arithmetic rewrite rules which replace address expressions with simpler expressions that use less operations or datapath stages. Rewrite rules are also used for supporting operations such as $/$ or $\%$, which are not supported in the hardware, but can be transformed into $>>$ or $\&$ in special cases. These rules are not standard mathematical identities- they check certain constraints on the values involved in the expression based on information that is statically known. These rules, thus, are theorems of the form
+\begin{theorem}
+    If a set of constraints $C$ on $expr1$ is satisified, then $ expr_1 = expr_2 $
+\end{theorem}
+
+However, they are not formally proven before addition to the compiler. An incorrect rewrite rule might, in some specific case, replace an expression with another which is not equivalent to the original.
+
+Complex array access expressions also occur in general nested loop programs. Previous work\cite{strength} has investigated strength reduction for optimizing complicated array index expressions. If loop bounds are known at compile time, the same rewrite rules can be applied to general nested loop programs.
+
+<!--- the "rough" problem statement concludes the motivation -->
+
+This project aimed to achieve the following goals. 
 
 1. Evaluate the feasibility of using a theorem prover for proving arithmetic expression rewrite rules.
 
@@ -24,17 +36,9 @@ This project aims to achieve the following goals. (TODO: goals or problems state
 
 3. Create a set of lemmas or a methodology for developing proofs for new rules.
 
-The rewrite rules that we set out to prove will give significant performance improvements in standard CPU-based loop nests. In a sense, they are analogous to strength reduction, or induction variable elimination. The rules that we select are different from these optimizations due to the following factors-
+# Problem Statement
 
-1. Unlike strength reduction, which merely reduces expensive arithmetic operations in a loop nest, these are built to be applied in a reconfigurable scalar datapath with a limited number of stages, with some operations being _unavailable_. In some cases, such transformations are necessary for a buffer to _fit_ within a given number of memory units, while in others, they eliminate operations which are incomputable on the hardware. 
-
-2. Because the workloads being compiled have long runtimes, this is a situation where a longer compile time can be traded off for better performance at runtime.[^1]
-
-[^1]: Note that Coq itself _does not execute_ at compile time. The compile time overhead is due to the fact that the compiler will carry out a dataflow-style bounds analysis pass for establishing the intervals within which values of variables lie, and carry out multiple precondition checks before replacing an arithmetic expression with another (cheaper) expression.
-
-3. These rules are primarily concerned with _iterators_, _intervals_, and the _division_ and _modulo_ arithmetic operations.
-
-Specifically we shall,
+Specifically, we may state our problem as:
 
 1. Evaluate the feasibility of using the **Coq** proof assistant for proving arithmetic expression rewrite rules designed for reducing reconfigurable scalar datapath stages by eliminating arithmetic operations, or replacing them with simpler operations.
 
@@ -49,6 +53,18 @@ Specifically we shall,
     - Lay the foundation for a Coq library of results about bounds and transformations.
     - Extracting results repeatedly used in Coq proofs as independent Lemmas.
     - Document proof and tactic usage patterns that commonly occur in proofs of the above two kinds.
+
+##z
+
+The rewrite rules that we set out to prove will give significant performance improvements in standard CPU-based loop nests. In a sense, they are analogous to strength reduction, or induction variable elimination. The rules that we select are different from these optimizations due to the following factors-
+
+1. Unlike strength reduction, which merely reduces expensive arithmetic operations in a loop nest, these are built to be applied in a reconfigurable scalar datapath with a limited number of stages, with some operations being _unavailable_. In some cases, such transformations are necessary for a buffer to _fit_ within a given number of memory units, while in others, they eliminate operations which are incomputable on the hardware. 
+
+2. Because the workloads being compiled have long runtimes, this is a situation where a longer compile time can be traded off for better performance at runtime.[^1]
+
+[^1]: Note that Coq itself _does not execute_ at compile time. The compile time overhead is due to the fact that the compiler will carry out a dataflow-style bounds analysis pass for establishing the intervals within which values of variables lie, and carry out multiple precondition checks before replacing an arithmetic expression with another (cheaper) expression.
+
+3. These rules are primarily concerned with _iterators_, _intervals_, and the _division_ and _modulo_ arithmetic operations.
 
 # Solution Overview
 
@@ -142,7 +158,7 @@ The proof of these theorems implies the legality of the following transformation
 
 [^5]: Note that these theorems are stating facts about integers and hence any transformations they enable are platform agnostic.
 
-```{.c}
+```{label=originaldiv .c}
 for (x = 2; x <= 10000; x += 6) {
     ...
     y = x/3;
@@ -153,7 +169,7 @@ for (x = 2; x <= 10000; x += 6) {
 
 Now, the compiler can match $x \in iterator(2, 100, 6)$ and $c = 3$ to generate the following transformed code eliminating a division operation in lieu of an addition in every iteration. If a code similar to this were running on a reconfigurable scalar datapath, we would eliminating a division stage in exchange for a parallel counter.
 
-```{.c}
+```{label=transformeddiv .c}
 for (x = 2, y = 0; x <= 10000; x += 6, y += 2) {
     ...
     foo(y);
@@ -180,44 +196,75 @@ Qed.
 
 During the course of our project, we observed some recurring patterns while using Coq to formalize our proofs which made our lives easier. We believe that the following strategies will be useful for proofs of a similar nature.
 
-1. One of the most useful tactics was `assert`. It is in our best interest to first 
+1. While simpler lemmas can be proven by repeated use of `destruct` and `unfold` (making the granularity of abstraction finer and finer) upon which the goals become easily apparent. For more involved proofs, however, a "guided" approach is necessary. It is better to create a proof sketch by hand, identify intermediate "goals" which make sense _intuitively_. Then, one can use lemmas from Coq libraries to reach these intermediate goals by:
+    i. Breaking down existing Coq goals.
+    ii. Reducing available hypotheses.
+    iii. Alternatively, simply `assert` the intermediate goal that you seek to prove, to add it to the Coq goals. Then prove it like a normal goal, upon which it gets added to the hypotheses set.
 
-**Ideas about documentation**
+2. There will be junctures where goals are reduced to arithmetic identities or results which intuitively make sense. It can however be cumbersome to track down a sequence of theorems to apply to prove these. Such goals usually are trivially proven by one of the following tactics:
+    i. `ring`: For solving _equations_ involving _ring_ arithmetic operations. (+, -, $\times$).
+    ii. `nia`: For solving _inequations_, trivially does manipulations on both sides of an inequality.
+    iii. `remember`: For substituting a variable in place of a subexpression. (eg. Define a new $p$ as $p = z \times z'$ for a given $z$ and $z'$.
 
-- Use of assert (create a hand-written proof, and use that to guide your search for existing results about integers in the coq library, use steps of your proof as "waypoints" in the mechanical proof)
-- Ring, Nia, Lia, Auto, Remember
-- Judicious use of destruct (know when to destruct what)
-- Judicious use of induction (when there are multiple cases that you want to consider, don't immediately do a cross product of all cases, .. ?)
-    - Try to use general lemmas already available in the library rather than going to the _lowest level_ (aka expand all operations and induction on all variables). That becomes tedious to keep track of.
-- How to search for results (download coq source, use comments to guide your search for a particular *kind* of fact, or facts about a particular operation)
-- Sometimes, when you are unsure about a rule, you might:
-    - Think you reached a goal in coq for which you can find a counterexample
-    - start thinking that the goal is wrong, but if coq checks your proof, its guaranteed to be correct.
-- Intuitions about integers _can_ be wrong, and that becomes apparent when you try to prove your "intuitive" facts using theorems from Zarith.
-- Libraries (from ZArith)
-    - BinInt (results about arithmetic operations, identities, sundry arithmetic lemmas)
-    - Zorder (operations on both sides of <= / >=, 
-    - Zcompare (lemmas about comparison _operators_ Gt?)
-    - Znumbertheory: results about divisibility, gcd, modulo)
-    - Zdiv: (results about integer division)
-    - ZArith.Zarith (for ***ring***)
-    - Coq.nicromega.Lia (Nia: nonlinear integer arithmetic (solver?))
+3. At some junctures, it seems that a particular Lemma from a library _is_ applicable, but Coq is unable to match it with existing hypotheses. Here, one can _explicitly_ specify which subexpressions Coq should try to match the lemma with. For example, the lemma `Z_div_le` makes a statement about 3 integers  `a, b, c`. One can match a particular subexpression `e` as `c` by invoking `apply (@Z_div_le _ _ e)`.
+
+4. Use `destruct` judiciously. The `destruct` tactic breaks down conjunctions and disjunctions, expands inductive type definitions, or applies a hypothesis to all applicable cases and destroys it.
+    i. Expanding type definitions in the correct order will result in smaller subgoals, and a succinct proof. Improper orders land you in limbo.
+    ii. Be careful when destroying hypotheses! You might need them at a later point!
+
+5. Use `induction` judiciously. While one can try to _brute-force_ a proof by cases by going down the rabbit hole of induction over all variables. This will mean reinventing the wheel, and will result in an explosion of subgoals, which can become tedious to keep track of. Proofs can be done succinctly and intuitively by using existing high-level theorems instead.
+
+6. Intuitive non-trivial results are hard to find in the Coq library documents. Another approach here is to download the Coq source, and grep[^6] the results and the comments directly. Thankfully, lemmas in the `ZArith` module are peppered with useful comments, making this feasible.
+
+[^6]: search
+
+7. Intuitions about integers _can_ be wrong, and that becomes apparent when you try to prove your "intuitive" facts using theorems from `ZArith`.
+
+8. The following libraries provide useful results that we used in our proofs:
+    i. BinInt: results about arithmetic operations, identities, sundry arithmetic lemmas.
+    ii. Zorder: operations on both sides of $\le$, $\ge$, $<$, $>$.
+    iii. Znumbertheory: results about divisibility, gcd, modulo.
+    iv. Zdiv: results about integer division. (The _division folding_ theorem that we set out to prove was an existing lemma in `Zdiv`).
+    v. ZArith.Zarith (for `ring`).
+    vi. Coq.micromega.Lia (for `nia`).
+
+# Usage
+
+This project aims to prevent the addtion of incorrect arithmetic rewrite rules (~peephole optimizations) to a compiler. The rules being considered are _general_, and only require compile time _precondition_ checks, rather than brute-force enumeration of all possible values. An incorrect rule might replace some original program expression with a _replacement expression_ which takes a different value for some corner case value of inputs. A developer might debug such a compiler bug by enumerating all values of the iterators involved in the corner case for which the rule fails, and fixing that specific corner case. Such ad-hoc fixes will not guarantee the correctness of the rule since the addition of new preconditions will end up fixing only the _specific instance_ where it fails, and there might be many more such "corner cases". What we truly want is to implement a general rule.
+
+We show that such rules can be proved as theorems about numbers _before_ a developer adds them to the compiler. With a Coq-checked proof, we have a guarantee that the rule will hold, and the transformation will be correct as long as its preconditions are satisfied.
+Such general rules only require a few precondition checks at compile time, as opposed to transformations checked by compile-time enumeration by a solver such as Z3.
+
+The previous section demonstrates the usage of one Coq-checked rewrite rule by the compiler. Simple usage illustrations for other theorems/rules can be found in \autoref{theorems}.
+
+We envision the usage of our idea by a compiler developer in the following workflow.
+
+1. The developer finds a recurring expression pattern, and concocts a way to replace it with a cheaper expression. 
+
+2. They express this optimization as a transformation rule with preconditions, and formalize it as a theorem of the form $precondition \implies e_{original} = e_{replacement}$ in Coq.
+
+3. They attempt to prove the theorem using Coq standard library theorems, and lemmas that they have previously proven (somewhat like the library that we have developed).
+   i. If the proof is successful, the rule may safely be implemented as a transformation in the compiler. 
+   ii. If the proof leads to a contradiction, they repair their transformation by adding a stronger precondition.
+  
+4. If the proof does not _terminate_, there is no guarantee about its correctness. The developer might still choose to implement the the transformation, (for example, in cases where it is necessary for making a kernel work on a particular hardware platform), _with the knowledge that it might be incorrect_. If the developer encounters a corner case bug, they may choose to incorporate its fix into the theorem preconditions, and attempt to prove the rule again. 
+
+We hope that this demonstration encourages the development of such Coq modules for different kinds of transformations.
 
 ```
-1. an overview of your solution approach, 
+1. demonstration of the practicality of your approach through a prototype implementation in a compiler framework or through performance studies of handcoded examples, and 
 
-2. demonstration of the practicality of your approach through a prototype implementation in a compiler framework or through performance studies of handcoded examples, and 
-
-3. a comparison with related work.
+2. a comparison with related work.
 ```
 
-# Appendix A: Theorems {#theorems}
+# Appendix A: Theorems, and their applications {#theorems}
 
 ## Sundry Transformations
 
 1. Division Folding
     - If $x \in \mathbb{Z} \wedge a > 0 \wedge b > 0$
       - $(x / a) / b = x / (a * b)$
+    - Example: Scratchpad-match calculations might lead to multiple division operations on an address offset. An expression of the form $(x / 1024) / 4$ may be transformed to $x / (1024 * 4)$, which can be folded to $(x / 4096)$, saving a division operation.
 
 ## Bounds
 
@@ -225,11 +272,30 @@ During the course of our project, we observed some recurring patterns while usin
     - If $x \in [a, b] \wedge y \in [c, d]$, then
       - $x + y \in [a + c, b + d]$
       - $x - y \in [a - d, b - c]$
+    - Example:
+  
+      ```{.c}
+        for (i = 205; i <= 250; i += 5) {
+          for (j = 2; j <= 30; j += 4) {
+            ...
+            x = input();
+            ...
+            a = (j - x % 8 + 200) + i;
+            index = a / 100;
+            offset = a % 100;
+            ...
+          }
+        }
+      ```
+
+      The bounds of $i$ and $j$ are known at compile time: $i \in [205, 250]$, $j \in [2, 30]$. Conservative bounds for $x \% 8$ are also known to be $[0, 7]$. Thus, $j - x \% 8 \in [-2, 30]$, $j - x \% 8 + 200 \in [198, 230]$, and $a \in [403, 480]$.
 
 2. Expression Reduction using bounds
-    - If $x \in [a, b]$ then
-      - $x / k \to$ ? (constant or zero?)
-      - $x \% k \to$ ? (x or x + some constant?)
+    - If $x \in [a, b] \wedge (a/c = b/c)$ then
+      - $x / c = a/c$
+      - $x \% c = a \% c + (x - a)$
+    - Example:
+        Continuing with the example above, since $a \in [403, 480]$, the compiler can replace $a/100$ with $4$ and $a \% 100$ with $3 + (x - 403)$. Depending on the rest of the program, the computation of $a$ might turn out to be dead code now, providing even further optimization opportunities.
 
 ## Iterators
 
@@ -249,7 +315,17 @@ During the course of our project, we observed some recurring patterns while usin
       - $x / c \in I(start/c, end/c, step/c)$
       - $\forall k \in Z, k^{th}Iter ~k~ I(start/c, end/c, step/c) = k^{th}Iter ~k~ I(start, end, step)$
 
-# Appendix B: Proofs (#proofs)
+- Example:
+  
+  ```{.c}
+    for (i = 64; i <= 256; i+= 16) {
+      bank = (i + 1) % 8;
+    }
+  ```
+
+  In this example, $i \in I(64, 256, 16)$, with _iterator replacement_, the compiler concludes that $(i+1) \in I(65, 257, 16)$. Since $(8 | 16)$, $(i + 1) \% 8 = 65 \% 8 = 1$ by _modulo simplification_. Since `bank` is a loop independent constant, it can be propagated out of the loop.
+
+# Appendix B: Selected Proofs {#proofs}
 
 ```{.v}
 Theorem div_of_iter : forall x c : Z, forall I : Iterator,
@@ -361,3 +437,5 @@ Proof.
     rewrite H0. nia. assumption. assumption.
 Qed.
 ```
+
+\bibliography

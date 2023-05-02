@@ -319,7 +319,6 @@ Proof.
     rewrite Z_div_plus_full. 2: assumption.
     rewrite Z_div_mult_full. 2: assumption.
     reflexivity.
-(* Admitted. *)
 Qed.
 
 Inductive Interval : Type :=
