@@ -270,6 +270,11 @@ The Peek[@peek] framework for CompCert[@compcert] proves a set of standard peeph
 
 The rewrite rules that we set out to prove will _not_ give significant performance improvements in standard CPU-based loop nests. In a sense, they are analogous to strength reduction[@strength], or induction variable elimination. However, unlike strength reduction, which merely reduces expensive arithmetic operations in a loop nest, these are built to be applied in a reconfigurable scalar datapath with a limited number of stages, with some operations being _unavailable_. In some cases, such transformations are necessary for a buffer to _fit_ within a given number of memory units, while in others, they eliminate operations which are incomputable on the hardware. These rules are primarily concerned with _iterators_, _intervals_, and the _division_ and _modulo_ arithmetic operations.
 
+# References
+
+::: {#refs}
+:::
+
 \newpage
 
 # Appendix A: Theorems, and their application {#theorems}
@@ -457,4 +462,3 @@ Qed.
 
 \newpage
 
-# References
