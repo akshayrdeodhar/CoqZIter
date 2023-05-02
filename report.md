@@ -37,11 +37,11 @@ This project aimed to achieve the following goals.
 
 Our _concrete_ problem statement is the following:
 
-1. Evaluate the feasibility of using the **Coq** proof assistant for proving arithmetic expression rewrite rules designed for reducing reconfigurable scalar datapath stages by eliminating arithmetic operations, or replacing them with simpler operations.
+1. Evaluate the feasibility of using the **Coq** proof assistant for proving arithmetic expression rewrite rules designed for reducing reconfigurable scalar datapath stages or loop computations by eliminating arithmetic operations, or replacing them with simpler operations.
 
-2. Prove and disprove theorems of the following forms, on **integers**.
-    - The value of an expression $e \in [L({subexpression\_bounds}), R({subexpression\_bounds})]$, where ${subexpression\_bounds}$ is the set of conservative bounds for the subexpressions of $e$, where $e$ is of the form $e = e_1 {op} e_2, and $L$ and $R$ are functions that define the bounds of $e$ in terms of ${subexpression\_bounds}$.
-    - If $e = f(e_1, e_2, .. e_{n_1})$ and conditions $C_1, C_2, C_3, .. C_m$ hold, then $e = f'(e_1', e_2', ... e_{n_2}')$. (that is, $f$ can be safely replaced with $f'$ in the program. Note that the reverse transformation may not always be correct).[^2]
+2. Prove and disprove theorems of the following forms, on **integers**, corresponding to _compiler transformations_.
+    - The value of an expression $e \in [L({subexpression\_bounds}), R({subexpression\_bounds})]$, where ${subexpression\_bounds}$ is the set of conservative bounds for the subexpressions of $e$, where $e$ is of the form $e = e_1 op e_2$, and $L$ and $R$ are functions that define the bounds of $e$ in terms of ${subexpression\_bounds}$.
+    - If $e = f(e_1, e_2, .. e_{n_1})$ and conditions $C_1, C_2, C_3, .. C_m$ hold, then $e = f'(e_1', e_2', ... e_{n_2}')$. (that is, $f$ can be safely replaced with $f'$ in the program.[^2] Note that the reverse transformation may not always be correct).
 
 [^2]: We shall refer to $f$ as the _original expression_ and $f'$ as the _replacement expression_.
 
