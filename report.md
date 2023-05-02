@@ -25,11 +25,11 @@ Complex array access expressions also occur in general nested loop programs. Pre
 
 <!--- the "rough" problem statement concludes the motivation -->
 
-This project aimed to achieve the following goals. 
+This project aims to achieve the following goals.
 
 1. Evaluate the feasibility of using a theorem prover for proving arithmetic expression rewrite rules.
 
-2. Write checked proofs, or disprove a set of rules, adding stronger preconditions to correct the incorrect rules.
+2. Write checked proofs, or disprove a set of rules, and add stronger preconditions to correct the incorrect rules.
 
 3. Create a set of lemmas or a methodology for developing proofs for new rules.
 
@@ -154,7 +154,7 @@ for (x = 2; x <= 10000; x += 6) {
 }
 ```
 
-Now, the compiler can match $x \in iterator(2, 100, 6)$ and $c = 3$ to generate the following transformed code eliminating a division operation in lieu of an addition in every iteration. If a code similar to this were running on a reconfigurable scalar datapath, we would eliminating a division stage in exchange for a parallel counter.
+Now, the compiler can match $x \in iterator(2, 10000, 6)$ and $c = 3$ to generate the following transformed code eliminating a division operation in lieu of an addition in every iteration. If a code similar to this were running on a reconfigurable scalar datapath, we would eliminating a division stage in exchange for a parallel counter.
 
 ```{label=transformeddiv .c}
 for (x = 2, y = 0; x <= 10000; x += 6, y += 2) {
@@ -164,7 +164,7 @@ for (x = 2, y = 0; x <= 10000; x += 6, y += 2) {
 }
 ```
 
-We then prove our set of theorems in Coq. For example, here is the proof of `Theorem div_of_iter_kth_val`{.v}. Some of our interesting `Theorems` and their proofs can be found in \autoref{proofs}. The rest are available on [github](https://gitfront.io/r/user-8813495/NSEjGqe31hHN/cs6245proj/).
+We then prove our set of theorems in Coq. For example, here is the proof of `Theorem div_of_iter_kth_val`{.v}. Some of our interesting `Theorems` and their proofs can be found in \autoref{proofs}. The rest are available on [github](https://github.com/akshayrdeodhar/cs6245proj).
 
 ```{.v}
 Proof.
@@ -201,7 +201,7 @@ We observed some recurring patterns while using Coq to formalize our proofs whic
     i. Expanding type definitions in the correct order will result in smaller subgoals, and a succinct proof. Improper orders land you in limbo.
     ii. Be careful when destroying hypotheses! You might need them at a later point!
 
-5. Use `induction` judiciously. While one can try to _brute-force_ a proof by cases by going down the rabbit hole of induction over all variables. This will mean reinventing the wheel, and will result in an explosion of subgoals, which can become tedious to keep track of. Proofs can be done succinctly and intuitively by using existing high-level theorems instead.
+5. Use `induction` judiciously. While one can try to _brute-force_ a proof by cases by going down the rabbit hole of induction over all variables, this will mean reinventing the wheel, and will result in an explosion of subgoals, which can become tedious to keep track of. Proofs can be done succinctly and intuitively by using existing high-level theorems instead.
 
 6. Intuitive non-trivial results are hard to find in the Coq library documents. Another approach here is to download the Coq source, and grep[^6] the results and the comments directly. Thankfully, lemmas in the `ZArith` module are peppered with useful comments, making this feasible.
 
@@ -255,6 +255,7 @@ The rewrite rules that we set out to prove will _not_ give significant performan
 Unlike strength reduction, which merely reduces expensive arithmetic operations in a loop nest, these are built to be applied in a reconfigurable scalar datapath with a limited number of stages, with some operations being _unavailable_. In some cases, such transformations are necessary for a buffer to _fit_ within a given number of memory units, while in others, they eliminate operations which are incomputable on the hardware. These rules are primarily concerned with _iterators_, _intervals_, and the _division_ and _modulo_ arithmetic operations.
 
 \newpage
+
 # Appendix A: Theorems, and their application {#theorems}
 
 ## Sundry Transformations
@@ -321,7 +322,9 @@ Unlike strength reduction, which merely reduces expensive arithmetic operations 
     }
   ```
 
-  In this example, $i \in I(64, 256, 16)$, with _iterator replacement_, the compiler concludes that $(i+1) \in I(65, 257, 16)$. Since $(8 | 16)$, $(i + 1) \% 8 = 65 \% 8 = 1$ by _modulo simplification_. Since `bank` is a loop independent constant, it can be propagated out of the loop.
+  In this example, $i \in I(64, 256, 16)$, with _iterator replacement_, the compiler concludes that $(i+1) \in I(65, 257, 16)$. Since $(8 | 16)$, $(i + 1) \% 8 = 65 \% 8 = 1$ by _modulo simplification_. This makes `bank` a loop independent constant, and can then be propagated out of the loop.
+
+\newpage
 
 # Appendix B: Selected Proofs {#proofs}
 
@@ -435,5 +438,7 @@ Proof.
     rewrite H0. nia. assumption. assumption.
 Qed.
 ```
+
+\newpage
 
 # References
