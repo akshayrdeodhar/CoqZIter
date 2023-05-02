@@ -48,7 +48,6 @@ Our _concrete_ problem statement is the following:
 3. Enable more proofs of the same kind by:
     - Defining primitives for expressing intervals and iterators.
     - Laying the foundation for a Coq library of results about bounds and transformations.
-    - Extracting results repeatedly used in Coq proofs as independent Lemmas.
     - Documenting proof and tactic usage patterns that commonly occur in proofs of the above two kinds.
 
 # Solution Overview
@@ -57,7 +56,7 @@ Our _concrete_ problem statement is the following:
 
 We start with proposing a set of theorems that can serve as a basis for analysis and transformations by the compiler once proven correct. These are provided in \autoref{theorems}.
 
-As address expressions calculate byte offsets, and iterators take integer values, all of our transformations can be expressed as theorems on Integers. Hence, we utilize the `Zarith` module of the Coq Standard Library which defines the abstract binary integer type `Z`, operations on `Z`, and further contains a rich set of useful lemmas.
+As address expressions calculate byte offsets, and iterators take integer values, all of our transformations can be expressed as theorems on integers. Hence, we utilize the `Zarith` module of the Coq Standard Library which defines the abstract binary integer type `Z`, operations on `Z`, and further contains a rich set of useful lemmas.
 
 We define our **Iterator** in terms of its _start_, _end_, and _step_ values over `Z`. The definition is meant to characterize the _set of integer values that the iterator may take_, and can be used to represent a loop iterator of the form `FOR I = _START, _END, _STEP`{.f} or a hardware counter of the form `(_START until _END by _STEP)`{.py}.
 
@@ -65,6 +64,8 @@ We define our **Iterator** in terms of its _start_, _end_, and _step_ values ove
 Inductive Iterator : Type :=
     | iterator (_start _end _step : Z).
 ```
+
+\newpage
 
 However, we don't wish to reason about the iterator itself, but the _values_ that an iterator might take. So we define what it means for a value to _belong_ to an iterator, as follows.
 
@@ -109,7 +110,7 @@ For a strength reduction or the use of a _parallel counter chain_[^3], we need t
 
 [^3]: B is a counter chain parallel to A if it executes in lock-step with A, and terminates when A terminates. Note that this is similar to _strength reduction_ with an auxiliary variable being updated every loop iteration.
 
-[^4]: Note that our $k$ is zero-indexed.
+[^4]: Our $k$ is zero-indexed.
 
 ```{.v}
 Definition kthIterVal (k : Z) (I : Iterator) :=
@@ -143,7 +144,7 @@ Theorem div_of_iter_kth_val : forall x c k : Z, forall I : Iterator,
 
 The proof of these theorems implies the legality of the following transformation[^5]:
 
-[^5]: Note that these theorems are stating facts about integers and hence any transformations they enable are platform agnostic.
+[^5]: These theorems state facts about integers and hence any transformations they enable are platform agnostic.
 
 ```{label=originaldiv .c}
 for (x = 2; x <= 10000; x += 6) {
@@ -166,6 +167,7 @@ for (x = 2, y = 0; x <= 10000; x += 6, y += 2) {
 
 We then prove our set of theorems in Coq. For example, here is the proof of `Theorem div_of_iter_kth_val`{.v}. Some of our interesting `Theorems` and their proofs can be found in \autoref{proofs}. The rest are available on [github](https://github.com/akshayrdeodhar/cs6245proj).
 
+\newpage
 ```{.v}
 Proof.
     intros. destruct H as [H0 [H1 H2]].
