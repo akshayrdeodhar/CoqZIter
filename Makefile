@@ -1,2 +1,2 @@
 report.pdf:
-	 pandoc --citeproc -o report.pdf report.md
+	 pandoc --number-sections --citeproc -o report.pdf report.md
