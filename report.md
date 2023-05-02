@@ -35,7 +35,7 @@ This project aimed to achieve the following goals.
 
 # Problem Statement
 
-Specifically, we may state our problem as:
+Our _concrete_ problem statement is the following:
 
 1. Evaluate the feasibility of using the **Coq** proof assistant for proving arithmetic expression rewrite rules designed for reducing reconfigurable scalar datapath stages by eliminating arithmetic operations, or replacing them with simpler operations.
 
@@ -45,23 +45,11 @@ Specifically, we may state our problem as:
 
 [^2]: We shall refer to $f$ as the _original expression_ and $f'$ as the _replacement expression_.
 
-3. Enable (TODO: new theorem proofs) by:
-    - Define primitives for expressing intervals and iterators.
-    - Lay the foundation for a Coq library of results about bounds and transformations.
+3. Enable more proofs of the same kind by:
+    - Defining primitives for expressing intervals and iterators.
+    - Laying the foundation for a Coq library of results about bounds and transformations.
     - Extracting results repeatedly used in Coq proofs as independent Lemmas.
-    - Document proof and tactic usage patterns that commonly occur in proofs of the above two kinds.
-
-##z
-
-The rewrite rules that we set out to prove will _not_ give significant performance improvements in standard CPU-based loop nests. In a sense, they are analogous to strength reduction, or induction variable elimination. The rules that we select are different from these optimizations due to the following factors-
-
-1. Unlike strength reduction, which merely reduces expensive arithmetic operations in a loop nest, these are built to be applied in a reconfigurable scalar datapath with a limited number of stages, with some operations being _unavailable_. In some cases, such transformations are necessary for a buffer to _fit_ within a given number of memory units, while in others, they eliminate operations which are incomputable on the hardware. 
-
-2. Because the workloads being compiled have long runtimes, this is a situation where a longer compile time can be traded off for better performance at runtime.[^1]
-
-[^1]: Note that Coq itself _does not execute_ at compile time. The compile time overhead is due to the fact that the compiler will carry out a dataflow-style bounds analysis pass for establishing the intervals within which values of variables lie, and carry out multiple precondition checks before replacing an arithmetic expression with another (cheaper) expression.
-
-3. These rules are primarily concerned with _iterators_, _intervals_, and the _division_ and _modulo_ arithmetic operations.
+    - Documenting proof and tactic usage patterns that commonly occur in proofs of the above two kinds.
 
 # Solution Overview
 
@@ -238,6 +226,8 @@ Such general rules only require a few precondition checks at compile time, as op
 
 The previous section demonstrates the usage of one Coq-checked rewrite rule by the compiler. Simple usage illustrations for other theorems/rules can be found in \autoref{theorems}.
 
+## Workflow
+
 We envision the usage of our idea by a compiler developer in the following workflow.
 
 1. The developer finds a recurring expression pattern, and concocts a way to replace it with a cheaper expression. 
@@ -251,6 +241,18 @@ We envision the usage of our idea by a compiler developer in the following workf
 4. If the proof does not _terminate_, there is no guarantee about its correctness. The developer might still choose to implement the the transformation, (for example, in cases where it is necessary for making a kernel work on a particular hardware platform), _with the knowledge that it might be incorrect_. If the developer encounters a corner case bug, they may choose to incorporate its fix into the theorem preconditions, and attempt to prove the rule again. 
 
 We hope that this demonstration encourages the development of such Coq modules for different kinds of transformations.
+
+# Related Work
+
+Alive[@alive] is a verifier for peephole optimizations in LLVM built using Z3[@z3]. Alive converts converts LLVM optimization _left hand sides_ and _right hand sides_ to logical formulas, and verifies their equivalence over all possible cases using the Z3 SMT solver. Alive either proves validity, or outputs a counterexample.
+
+Research on verification and synthesis of Halide _term rewrite rules_[@halide] also uses the Z3 SMT solver, but uses Coq for proving a subset of the rules by hand. The authors mention that the majority of rules for which Z3 times out involve the division and modulo operations.
+
+The Peek[@peek] framework for CompCert[@compcert] proves a set of standard peephole peephole optimizations in Coq, in addition to a global proof that the application of these optimizations, in _combination_ produces a correct program.
+
+The rewrite rules that we set out to prove will _not_ give significant performance improvements in standard CPU-based loop nests. In a sense, they are analogous to strength reduction[@strength], or induction variable elimination. The rules that we select are different from these optimizations due to the following factors-
+
+Unlike strength reduction, which merely reduces expensive arithmetic operations in a loop nest, these are built to be applied in a reconfigurable scalar datapath with a limited number of stages, with some operations being _unavailable_. In some cases, such transformations are necessary for a buffer to _fit_ within a given number of memory units, while in others, they eliminate operations which are incomputable on the hardware. These rules are primarily concerned with _iterators_, _intervals_, and the _division_ and _modulo_ arithmetic operations.
 
 \newpage
 # Appendix A: Theorems, and their application {#theorems}

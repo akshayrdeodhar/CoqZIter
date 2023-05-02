@@ -86,3 +86,61 @@ series = {PLDI '15}
       archivePrefix={arXiv},
       primaryClass={cs.AR}
 }
+
+@inproceedings{peek,
+author = {Mullen, Eric and Zuniga, Daryl and Tatlock, Zachary and Grossman, Dan},
+title = {Verified Peephole Optimizations for CompCert},
+year = {2016},
+isbn = {9781450342612},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2908080.2908109},
+doi = {10.1145/2908080.2908109},
+abstract = {Transformations over assembly code are common in many compilers. These transformations are also some of the most bug-dense compiler components. Such bugs could be elim- inated by formally verifying the compiler, but state-of-the- art formally verified compilers like CompCert do not sup- port assembly-level program transformations. This paper presents Peek, a framework for expressing, verifying, and running meaning-preserving assembly-level program trans- formations in CompCert. Peek contributes four new com- ponents: a lower level semantics for CompCert x86 syntax, a liveness analysis, a library for expressing and verifying peephole optimizations, and a verified peephole optimiza- tion pass built into CompCert. Each of these is accompanied by a correctness proof in Coq against realistic assumptions about the calling convention and the system memory alloca- tor. Verifying peephole optimizations in Peek requires prov- ing only a set of local properties, which we have proved are sufficient to ensure global transformation correctness. We have proven these local properties for 28 peephole transfor- mations from the literature. We discuss the development of our new assembly semantics, liveness analysis, representa- tion of program transformations, and execution engine; de- scribe the verification challenges of each component; and detail techniques we applied to mitigate the proof burden.},
+booktitle = {Proceedings of the 37th ACM SIGPLAN Conference on Programming Language Design and Implementation},
+pages = {448–461},
+numpages = {14},
+keywords = {Coq, CompCert, Formal Methods, Compilers, Peek, Verification},
+location = {Santa Barbara, CA, USA},
+series = {PLDI '16}
+}
+
+@inproceedings{z3,
+author = {De Moura, Leonardo and Bj\o{}rner, Nikolaj},
+title = {Z3: An Efficient SMT Solver},
+year = {2008},
+isbn = {3540787992},
+publisher = {Springer-Verlag},
+address = {Berlin, Heidelberg},
+abstract = {Satisfiability Modulo Theories (SMT) problem is a decision problem for logical first order formulas with respect to combinations of background theories such as: arithmetic, bit-vectors, arrays, and uninterpreted functions. Z3 is a new and efficient SMT Solver freely available from Microsoft Research. It is used in various software verification and analysis applications.},
+booktitle = {Proceedings of the Theory and Practice of Software, 14th International Conference on Tools and Algorithms for the Construction and Analysis of Systems},
+pages = {337–340},
+numpages = {4},
+location = {Budapest, Hungary},
+series = {TACAS'08/ETAPS'08}
+}
+
+
+
+@article{compcert,
+author = {Leroy, Xavier},
+title = {Formal Verification of a Realistic Compiler},
+year = {2009},
+issue_date = {July 2009},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {52},
+number = {7},
+issn = {0001-0782},
+url = {https://doi.org/10.1145/1538788.1538814},
+doi = {10.1145/1538788.1538814},
+abstract = {This paper reports on the development and formal verification (proof of semantic preservation) of CompCert, a compiler from Clight (a large subset of the C programming language) to PowerPC assembly code, using the Coq proof assistant both for programming the compiler and for proving its correctness. Such a verified compiler is useful in the context of critical software and its formal verification: the verification of the compiler guarantees that the safety properties proved on the source code hold for the executable compiled code as well.},
+journal = {Commun. ACM},
+month = {jul},
+pages = {107–115},
+numpages = {9}
+}
+
+  
+
+
