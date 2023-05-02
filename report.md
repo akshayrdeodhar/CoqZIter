@@ -29,7 +29,7 @@ This project aims to achieve the following goals.
 
 1. Evaluate the feasibility of using a theorem prover for proving arithmetic expression rewrite rules.
 
-2. Write checked proofs, or disprove a set of rules, adding stronger preconditions to correct the incorrect rules.
+2. Write checked proofs, or disprove a set of rules, and add stronger preconditions to correct the incorrect rules.
 
 3. Create a set of lemmas or a methodology for developing proofs for new rules.
 
