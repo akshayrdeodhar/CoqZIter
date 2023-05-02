@@ -11,20 +11,17 @@ header-includes:
     - \usepackage{amsfonts}
     - \usepackage{thmtools}
 bibliography: "references.bib"
+nocite: |
+  @*
 ---
 
 \newtheorem{theorem}{Lemma}
 
 # Motivation
 
-Plasticine \cite{plasticine} is a coarse-grained reconfigurable architecture for deep learning training and inference workloads. The architecture consists of a grid of Pattern Compute Units (PCUs) and Pattern Memory Units (PMUs) connected by an on-chip programmable switching fabric. Off-chip memory access is carried out using Address Generator and Coalescing Units (AGCUs).The hardware can be programmed using a \emph{template DSL}. Address calculations in the PMU and AGCU are done using a reconfigurable scalar datapath.\cite{plasticine} Loop induction variables are programmed using a set of configurable counter chains, where counter start, step and bound can be configured. The number of stages on the datapath are limited. Multidimensional tensor accesses and software-defined banking (where a single large tensor is partitioned over multiple PMUs) lead to complicated address or control expressions for which the available stages are insufficient. Handling this requires the use of an extra PMU purely for address calculations. The DSL compiler, therefore has a set of arithmetic rewrite rules which replace address expressions with simpler expressions that use less operations or datapath stages. Rewrite rules are also used for supporting operations such as $/$ or $\%$, which are not supported in the hardware, but can be transformed into $>>$ or $\&$ in special cases. These rules are not standard mathematical identities- they check certain constraints on the values involved in the expression based on information that is statically known. These rules, thus, are theorems of the form
-\begin{theorem}
-    If a set of constraints $C$ on $expr1$ is satisified, then $ expr_1 = expr_2 $
-\end{theorem}
+Plasticine [@plasticine] is a coarse-grained reconfigurable architecture for deep learning training and inference workloads. The architecture consists of a grid of Pattern Compute Units (PCUs) and Pattern Memory Units (PMUs) connected by an on-chip programmable switching fabric. Off-chip memory access is carried out using Address Generator and Coalescing Units (AGCUs).The hardware can be programmed using a \emph{template DSL}. Address calculations in the PMU and AGCU are done using a reconfigurable scalar datapath.[@plasticine] Loop induction variables are programmed using a set of counter chains, where counter start, step and bound can be configured. The number of stages on the datapath are limited. Multidimensional tensor accesses and software-defined banking (where a single large tensor is partitioned over multiple PMUs) lead to complicated address or control expressions for which the available stages are insufficient. Handling this requires the use of an extra PMU purely for address calculations. The DSL compiler, therefore has a set of arithmetic rewrite rules which replace address expressions with simpler expressions that use less operations or datapath stages. Rewrite rules are also used for supporting operations such as $/$ or $\%$, which are not supported in the hardware, but can be transformed into $>>$ or $\&$ in special cases. These rules are not standard mathematical identities- they check certain constraints on the values involved in the expression based on information that is known at compile time. The rules can be applied when the constraints are satisfied. If the correctness of a rule has not been proven before addition to the compiler, an incorrect rewrite rule might, in some specific case, replace an expression with another which is not equivalent to the original.
 
-However, they are not formally proven before addition to the compiler. An incorrect rewrite rule might, in some specific case, replace an expression with another which is not equivalent to the original.
-
-Complex array access expressions also occur in general nested loop programs. Previous work\cite{strength} has investigated strength reduction for optimizing complicated array index expressions. If loop bounds are known at compile time, the same rewrite rules can be applied to general nested loop programs.
+Complex array access expressions also occur in general nested loop programs. Previous work[@strength] has investigated strength reduction for optimizing complicated array index expressions. If loop bounds are known at compile time, the same rewrite rules can be applied to general nested loop programs.
 
 <!--- the "rough" problem statement concludes the motivation -->
 
@@ -43,7 +40,7 @@ Specifically, we may state our problem as:
 1. Evaluate the feasibility of using the **Coq** proof assistant for proving arithmetic expression rewrite rules designed for reducing reconfigurable scalar datapath stages by eliminating arithmetic operations, or replacing them with simpler operations.
 
 2. Prove and disprove theorems of the following forms, on **integers**.
-    - The value of an expression $e \in [L({subexpression\_bounds}), R({subexpression\_bounds})]$, where ${subexpression\_bounds}$ is the set of conservative bounds for the subexpressions of $e$, where $e$ is of the form $e = e1 op e2$.
+    - The value of an expression $e \in [L({subexpression\_bounds}), R({subexpression\_bounds})]$, where ${subexpression\_bounds}$ is the set of conservative bounds for the subexpressions of $e$, where $e$ is of the form $e = e_1 {op} e_2, and $L$ and $R$ are functions that define the bounds of $e$ in terms of ${subexpression\_bounds}$.
     - If $e = f(e_1, e_2, .. e_{n_1})$ and conditions $C_1, C_2, C_3, .. C_m$ hold, then $e = f'(e_1', e_2', ... e_{n_2}')$. (that is, $f$ can be safely replaced with $f'$ in the program. Note that the reverse transformation may not always be correct).[^2]
 
 [^2]: We shall refer to $f$ as the _original expression_ and $f'$ as the _replacement expression_.
@@ -56,7 +53,7 @@ Specifically, we may state our problem as:
 
 ##z
 
-The rewrite rules that we set out to prove will give significant performance improvements in standard CPU-based loop nests. In a sense, they are analogous to strength reduction, or induction variable elimination. The rules that we select are different from these optimizations due to the following factors-
+The rewrite rules that we set out to prove will _not_ give significant performance improvements in standard CPU-based loop nests. In a sense, they are analogous to strength reduction, or induction variable elimination. The rules that we select are different from these optimizations due to the following factors-
 
 1. Unlike strength reduction, which merely reduces expensive arithmetic operations in a loop nest, these are built to be applied in a reconfigurable scalar datapath with a limited number of stages, with some operations being _unavailable_. In some cases, such transformations are necessary for a buffer to _fit_ within a given number of memory units, while in others, they eliminate operations which are incomputable on the hardware. 
 
@@ -67,6 +64,8 @@ The rewrite rules that we set out to prove will give significant performance imp
 3. These rules are primarily concerned with _iterators_, _intervals_, and the _division_ and _modulo_ arithmetic operations.
 
 # Solution Overview
+
+## Formalizing Transformations
 
 We start with proposing a set of theorems that can serve as a basis for analysis and transformations by the compiler once proven correct. These are provided in \autoref{theorems}.
 
@@ -194,7 +193,9 @@ Proof.
 Qed.
 ```
 
-During the course of our project, we observed some recurring patterns while using Coq to formalize our proofs which made our lives easier. We believe that the following strategies will be useful for proofs of a similar nature.
+## Proof Strategies
+
+We observed some recurring patterns while using Coq to formalize our proofs which made our lives easier. We believe that the following strategies will be useful for proofs of a similar nature.
 
 1. While simpler lemmas can be proven by repeated use of `destruct` and `unfold` (making the granularity of abstraction finer and finer) upon which the goals become easily apparent. For more involved proofs, however, a "guided" approach is necessary. It is better to create a proof sketch by hand, identify intermediate "goals" which make sense _intuitively_. Then, one can use lemmas from Coq libraries to reach these intermediate goals by:
     i. Breaking down existing Coq goals.
@@ -228,7 +229,7 @@ During the course of our project, we observed some recurring patterns while usin
     v. ZArith.Zarith (for `ring`).
     vi. Coq.micromega.Lia (for `nia`).
 
-# Usage
+# Utility
 
 This project aims to prevent the addtion of incorrect arithmetic rewrite rules (~peephole optimizations) to a compiler. The rules being considered are _general_, and only require compile time _precondition_ checks, rather than brute-force enumeration of all possible values. An incorrect rule might replace some original program expression with a _replacement expression_ which takes a different value for some corner case value of inputs. A developer might debug such a compiler bug by enumerating all values of the iterators involved in the corner case for which the rule fails, and fixing that specific corner case. Such ad-hoc fixes will not guarantee the correctness of the rule since the addition of new preconditions will end up fixing only the _specific instance_ where it fails, and there might be many more such "corner cases". What we truly want is to implement a general rule.
 
@@ -251,13 +252,8 @@ We envision the usage of our idea by a compiler developer in the following workf
 
 We hope that this demonstration encourages the development of such Coq modules for different kinds of transformations.
 
-```
-1. demonstration of the practicality of your approach through a prototype implementation in a compiler framework or through performance studies of handcoded examples, and 
-
-2. a comparison with related work.
-```
-
-# Appendix A: Theorems, and their applications {#theorems}
+\newpage
+# Appendix A: Theorems, and their application {#theorems}
 
 ## Sundry Transformations
 
@@ -438,4 +434,4 @@ Proof.
 Qed.
 ```
 
-\bibliography
+# References

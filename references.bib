@@ -1,41 +1,5 @@
-@book{strength,
-	publisher = {Muchnick, Steven and Jones, Neil},
-	year      = {1981},
-	month     = {01},
-	pages     = {79- 101},
-	booktitle = {Program Flow Analysis: Theory and Applications},
-	title     = {Reduction of Operator Strength},
-	isbn      = {978-0-13-729681-1},
-	author    = {F E Allen and John Cocke and Ken Kennedy}
-}
 
-
-@book{coq,
-	title     = {Interactive theorem proving and program development: Coq’Art: the calculus of inductive constructions},
-	author    = {Bertot, Yves and Cast{\'e}ran, Pierre},
-	year      = {2013},
-	publisher = {Springer Science \& Business Media}
-} 
-
-@misc{whitepaper,
-	author       = {Sambanova Systems},
-	title        = {Accelerated Computing with a Reconfigurable Dataflow Architecture},
-	howpublished = {Whitepaper}
-}
-
-
-@inproceedings{rdu,
-	author    = {Prabhakar, Raghu and Jairath, Sumti},
-	booktitle = {2021 IEEE Hot Chips 33 Symposium (HCS)},
-	title     = {SambaNova SN10 RDU:Accelerating Software 2.0 with Dataflow},
-	year      = {2021},
-	volume    = {},
-	number    = {},
-	pages     = {1-37},
-	doi       = {10.1109/HCS52781.2021.9567250}
-}
-
-  @inproceedings{plasticine,
+@inproceedings{plasticine,
 	author    = {Prabhakar, Raghu and Zhang, Yaqi and Koeplinger, David and Feldman, Matt and Zhao, Tian and Hadjis, Stefan and Pedram, Ardavan and Kozyrakis, Christos and Olukotun, Kunle},
 	booktitle = {2017 ACM/IEEE 44th Annual International Symposium on Computer Architecture (ISCA)},
 	title     = {Plasticine: A reconfigurable architecture for parallel patterns},
@@ -47,3 +11,78 @@
 }
 
 
+@article{strength,
+author = {Cocke, John and Kennedy, Ken},
+title = {An Algorithm for Reduction of Operator Strength},
+year = {1977},
+issue_date = {Nov. 1977},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {20},
+number = {11},
+issn = {0001-0782},
+url = {https://doi.org/10.1145/359863.359888},
+doi = {10.1145/359863.359888},
+abstract = {A simple algorithm which uses an indexed temporary table to perform reduction of operator strength in strongly connected regions is presented. Several extensions, including linear function test replacement, are discussed. These algorithms should fit well into an integrated package of local optimization algorithms.},
+journal = {Commun. ACM},
+month = {nov},
+pages = {850–856},
+numpages = {7},
+keywords = {operator strength reduction, program analysis, strongly connected region, compilers, test replacement, optimization of compiled code}
+}
+
+
+@book{coq,
+	title     = {Interactive theorem proving and program development: Coq’Art: the calculus of inductive constructions},
+	author    = {Bertot, Yves and Cast{\'e}ran, Pierre},
+	year      = {2013},
+	publisher = {Springer Science \& Business Media}
+} 
+
+
+@article{halide,
+author = {Newcomb, Julie L. and Adams, Andrew and Johnson, Steven and Bodik, Rastislav and Kamil, Shoaib},
+title = {Verifying and Improving Halide’s Term Rewriting System with Program Synthesis},
+year = {2020},
+issue_date = {November 2020},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {4},
+number = {OOPSLA},
+url = {https://doi.org/10.1145/3428234},
+doi = {10.1145/3428234},
+abstract = {Halide is a domain-specific language for high-performance image processing and tensor computations, widely adopted in industry. Internally, the Halide compiler relies on a term rewriting system to prove properties of code required for efficient and correct compilation. This rewrite system is a collection of handwritten transformation rules that incrementally rewrite expressions into simpler forms; the system requires high performance in both time and memory usage to keep compile times low, while operating over the undecidable theory of integers. In this work, we apply formal techniques to prove the correctness of existing rewrite rules and provide a guarantee of termination. Then, we build an automatic program synthesis system in order to craft new, provably correct rules from failure cases where the compiler was unable to prove properties. We identify and fix 4 incorrect rules as well as 8 rules which could give rise to infinite rewriting loops. We demonstrate that the synthesizer can produce better rules than hand-authored ones in five bug fixes, and describe four cases in which it has served as an assistant to a human compiler engineer. We further show that it can proactively improve weaknesses in the compiler by synthesizing a large number of rules without human supervision and showing that the enhanced ruleset lowers peak memory usage of compiled code without appreciably increasing compilation times.},
+journal = {Proc. ACM Program. Lang.},
+month = {nov},
+articleno = {166},
+numpages = {28},
+keywords = {term rewriting system, synthesis, verification}
+}
+
+@inproceedings{alive,
+author = {Lopes, Nuno P. and Menendez, David and Nagarakatte, Santosh and Regehr, John},
+title = {Provably Correct Peephole Optimizations with Alive},
+year = {2015},
+isbn = {9781450334686},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/2737924.2737965},
+doi = {10.1145/2737924.2737965},
+abstract = {Compilers should not miscompile. Our work addresses problems in developing peephole optimizations that perform local rewriting to improve the efficiency of LLVM code. These optimizations are individually difficult to get right, particularly in the presence of undefined behavior; taken together they represent a persistent source of bugs. This paper presents Alive, a domain-specific language for writing optimizations and for automatically either proving them correct or else generating counterexamples. Furthermore, Alive can be automatically translated into C++ code that is suitable for inclusion in an LLVM optimization pass. Alive is based on an attempt to balance usability and formal methods; for example, it captures---but largely hides---the detailed semantics of three different kinds of undefined behavior in LLVM. We have translated more than 300 LLVM optimizations into Alive and, in the process, found that eight of them were wrong.},
+booktitle = {Proceedings of the 36th ACM SIGPLAN Conference on Programming Language Design and Implementation},
+pages = {22–32},
+numpages = {11},
+keywords = {Peephole Optimization, Alive, Compiler Verification},
+location = {Portland, OR, USA},
+series = {PLDI '15}
+}
+
+
+@misc{banking,
+      title={Efficient Memory Partitioning in Software Defined Hardware}, 
+      author={Matthew Feldman and Tian Zhao and Kunle Olukotun},
+      year={2022},
+      eprint={2202.01261},
+      archivePrefix={arXiv},
+      primaryClass={cs.AR}
+}
