@@ -2,7 +2,7 @@
 title: Correctness of address expression transformations
 subtitle: Formally proving the correctness of integer arithmetic rewrite rules for optimizing address expressions using Coq
 author: "Akshay Deodhar and Sparsh Jain"
-date: "1 May 2023"
+date: "2 May 2023"
 geometry: margin=2cm
 colorlinks: "true"
 header-includes:
