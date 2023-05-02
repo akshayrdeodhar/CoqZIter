@@ -10,12 +10,24 @@ header-includes:
     - \usepackage{amsmath}
     - \usepackage{amsfonts}
     - \usepackage{thmtools}
+    - \usepackage{csquotes}
 bibliography: "references.bib"
 nocite: |
   @*
 ---
 
 \newtheorem{theorem}{Lemma}
+
+\widowpenalty10000
+\clubpenalty10000
+
+\begin{displayquote}
+\textit{Program testing can be used to show the presence of bugs, but never to show their absence}
+
+Edsger W. Dijkstra
+\end{displayquote}
+
+
 
 # Motivation
 
@@ -40,7 +52,7 @@ Our _concrete_ problem statement is the following:
 1. Evaluate the feasibility of using the **Coq** proof assistant for proving arithmetic expression rewrite rules designed for reducing reconfigurable scalar datapath stages or loop computations by eliminating arithmetic operations, or replacing them with simpler operations.
 
 2. Prove and disprove theorems of the following forms, on **integers**, corresponding to _compiler transformations_.
-    - The value of an expression $e \in [L({subexpression\_bounds}), R({subexpression\_bounds})]$, where ${subexpression\_bounds}$ is the set of conservative bounds for the subexpressions of $e$, where $e$ is of the form $e = e_1 op e_2$, and $L$ and $R$ are functions that define the bounds of $e$ in terms of ${subexpression\_bounds}$.
+    - The value of an expression $e \in [L({subexpression\_bounds}), R({subexpression\_bounds})]$, where ${subexpression\_bounds}$ is the set of conservative bounds for the subexpressions of $e$, where $e$ is of the form $e = e_1 \mathop{op} e_2$, and $L$ and $R$ are functions that define the bounds of $e$ in terms of ${subexpression\_bounds}$.
     - If $e = f(e_1, e_2, .. e_{n_1})$ and conditions $C_1, C_2, C_3, .. C_m$ hold, then $e = f'(e_1', e_2', ... e_{n_2}')$. (that is, $f$ can be safely replaced with $f'$ in the program.[^2] Note that the reverse transformation may not always be correct).
 
 [^2]: We shall refer to $f$ as the _original expression_ and $f'$ as the _replacement expression_.
@@ -65,7 +77,6 @@ Inductive Iterator : Type :=
     | iterator (_start _end _step : Z).
 ```
 
-\newpage
 
 However, we don't wish to reason about the iterator itself, but the _values_ that an iterator might take. So we define what it means for a value to _belong_ to an iterator, as follows.
 
@@ -99,7 +110,11 @@ Similarly, we define our **Interval** in terms of its _start_ and _end_ values o
 ```{.v}
 Inductive Interval : Type :=
     | interval (_start _end : Z).
+```
 
+\newpage
+
+```
 Definition inInterval (x: Z) (I: Interval) :=
     match I with
     interval _start _end => _start <= x <= _end
@@ -165,9 +180,10 @@ for (x = 2, y = 0; x <= 10000; x += 6, y += 2) {
 }
 ```
 
-We then prove our set of theorems in Coq. For example, here is the proof of `Theorem div_of_iter_kth_val`{.v}. Some of our interesting `Theorems` and their proofs can be found in \autoref{proofs}. The rest are available on [github](https://github.com/akshayrdeodhar/cs6245proj).
+We then prove our set of theorems in Coq. For example, here is the proof of `Theorem div_of_iter_kth_val`{.v}. Some of our interesting `Theorems` and their proofs can be found in \autoref{proofs}. The rest are available on [github](https://github.com/akshayrdeodhar/CoqZIter).
 
 \newpage
+
 ```{.v}
 Proof.
     intros. destruct H as [H0 [H1 H2]].
@@ -221,7 +237,7 @@ We observed some recurring patterns while using Coq to formalize our proofs whic
 
 # Utility
 
-This project aims to prevent the addtion of incorrect arithmetic rewrite rules (~peephole optimizations) to a compiler. The rules being considered are _general_, and only require compile time _precondition_ checks, rather than brute-force enumeration of all possible values. An incorrect rule might replace some original program expression with a _replacement expression_ which takes a different value for some corner case value of inputs. A developer might debug such a compiler bug by enumerating all values of the iterators involved in the corner case for which the rule fails, and fixing that specific corner case. Such ad-hoc fixes will not guarantee the correctness of the rule since the addition of new preconditions will end up fixing only the _specific instance_ where it fails, and there might be many more such "corner cases". What we truly want is to implement a general rule.
+This project aims to prevent the addition of incorrect arithmetic rewrite rules ($\sim$ peephole optimizations) to a compiler. The rules being considered are _general_, and only require compile time _precondition_ checks, rather than brute-force enumeration of all possible values. An incorrect rule might replace some original program expression with a _replacement expression_ which takes a different value for some corner case value of inputs. A developer might debug such a compiler bug by enumerating all values of the iterators involved in the corner case for which the rule fails, and fixing that specific corner case. Such ad-hoc fixes will not guarantee the correctness of the rule since the addition of new preconditions will end up fixing only the _specific instance_ where it fails, and there might be many more such "corner cases". What we truly want is to implement a general rule.
 
 We show that such rules can be proved as theorems about numbers _before_ a developer adds them to the compiler. With a Coq-checked proof, we have a guarantee that the rule will hold, and the transformation will be correct as long as its preconditions are satisfied.
 Such general rules only require a few precondition checks at compile time, as opposed to transformations checked by compile-time enumeration by a solver such as Z3.
@@ -238,9 +254,9 @@ We envision the usage of our idea by a compiler developer in the following workf
 
 3. They attempt to prove the theorem using Coq standard library theorems, and lemmas that they have previously proven (somewhat like the library that we have developed).
    i. If the proof is successful, the rule may safely be implemented as a transformation in the compiler. 
-   ii. If the proof leads to a contradiction, they repair their transformation by adding a stronger precondition.
+   ii. If the proof leads to a contradiction, they repair the transformation by adding a stronger precondition.
   
-4. If the proof does not _terminate_, there is no guarantee about its correctness. The developer might still choose to implement the the transformation, (for example, in cases where it is necessary for making a kernel work on a particular hardware platform), _with the knowledge that it might be incorrect_. If the developer encounters a corner case bug, they may choose to incorporate its fix into the theorem preconditions, and attempt to prove the rule again. 
+4. If the proof does not _terminate_, there is no guarantee about its correctness. The developer might still choose to implement the transformation, (for example, in cases where it is necessary for making a kernel work on a particular hardware platform), _with the knowledge that it might be incorrect_. If the developer encounters a corner case bug, they may choose to incorporate its fix into the theorem preconditions, and attempt to prove the rule again. 
 
 We hope that this demonstration encourages the development of such Coq modules for different kinds of transformations.
 
@@ -248,13 +264,11 @@ We hope that this demonstration encourages the development of such Coq modules f
 
 Alive[@alive] is a verifier for peephole optimizations in LLVM built using Z3[@z3]. Alive converts converts LLVM optimization _left hand sides_ and _right hand sides_ to logical formulas, and verifies their equivalence over all possible cases using the Z3 SMT solver. Alive either proves validity, or outputs a counterexample.
 
-Research on verification and synthesis of Halide _term rewrite rules_[@halide] also uses the Z3 SMT solver, but uses Coq for proving a subset of the rules by hand. The authors mention that the majority of rules for which Z3 times out involve the division and modulo operations.
+Research on verification and synthesis of Halide _term rewrite rules_[@halide] also uses the Z3 SMT solver, but uses Coq for proving a subset of the rules for which Z3 times out. The authors mention that the majority of rules for which Z3 times out involve the division and modulo operations.
 
-The Peek[@peek] framework for CompCert[@compcert] proves a set of standard peephole peephole optimizations in Coq, in addition to a global proof that the application of these optimizations, in _combination_ produces a correct program.
+The Peek[@peek] framework for CompCert[@compcert] proves a set of standard peephole optimizations in Coq, in addition to a global proof that the application of these optimizations, in _combination_ produces a correct program.
 
-The rewrite rules that we set out to prove will _not_ give significant performance improvements in standard CPU-based loop nests. In a sense, they are analogous to strength reduction[@strength], or induction variable elimination. The rules that we select are different from these optimizations due to the following factors-
-
-Unlike strength reduction, which merely reduces expensive arithmetic operations in a loop nest, these are built to be applied in a reconfigurable scalar datapath with a limited number of stages, with some operations being _unavailable_. In some cases, such transformations are necessary for a buffer to _fit_ within a given number of memory units, while in others, they eliminate operations which are incomputable on the hardware. These rules are primarily concerned with _iterators_, _intervals_, and the _division_ and _modulo_ arithmetic operations.
+The rewrite rules that we set out to prove will _not_ give significant performance improvements in standard CPU-based loop nests. In a sense, they are analogous to strength reduction[@strength], or induction variable elimination. However, unlike strength reduction, which merely reduces expensive arithmetic operations in a loop nest, these are built to be applied in a reconfigurable scalar datapath with a limited number of stages, with some operations being _unavailable_. In some cases, such transformations are necessary for a buffer to _fit_ within a given number of memory units, while in others, they eliminate operations which are incomputable on the hardware. These rules are primarily concerned with _iterators_, _intervals_, and the _division_ and _modulo_ arithmetic operations.
 
 \newpage
 
